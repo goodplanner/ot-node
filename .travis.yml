@@ -11,15 +11,14 @@ before_install:
 - docker images
 - docker system prune -f
 - docker volume prune -f
-- docker pull quay.io/origintrail/otnode:master
-- docker run -d --name=otnode -p 8900:8900 -p 5278:5278 -p 3000:3000 --mount source=otnode-vol,destination=/ot-node --mount source=arango-vol,destination=/var/lib/arangodb -e INSTALLATION=local -e TRAVERSE_NAT_ENABLED=1 quay.io/origintrail/otnode:master
+- docker pull $DOCKER_IMAGE_TAG
+- docker run -d --name=otnode -p 8900:8900 -p 5278:5278 -p 3000:3000 --mount source=otnode-vol,destination=/ot-node --mount source=arango-vol,destination=/var/lib/arangodb -e INSTALLATION=local -e TRAVERSE_NAT_ENABLED=1 $DOCKER_IMAGE_TAG
 - docker ps -a
-- sleep 15
+# - sleep 15 - no need for this since npm install kicks on for ±20 sec
 before_script:
   - docker -v
 script:
   # now we have repo available
-  - ps -a
   - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/import -F importtype=GS1 -F importfile=@/ot-node/importers/xml_examples/Retail/03_Pink_to_Orange_shipment.xml"
   - sleep 3
   - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/replication -F import_id=0xe3a5d71a19e7d8bce51bdbd6619eeb057522311d1136f56ffd775a810f8644b4"
