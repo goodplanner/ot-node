@@ -5,7 +5,7 @@ sudo: required
 services:
   - docker
 env:
-  - NODE_ENV=development
+  - NODE_ENV=production
 before_install:
 - docker ps -a
 - docker images
@@ -19,6 +19,9 @@ before_script:
   - docker -v
 script:
   # now we have repo available
+  - ps -a
   - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/import -F importtype=GS1 -F importfile=@/ot-node/importers/xml_examples/Retail/03_Pink_to_Orange_shipment.xml"
+  - sleep 3
+  - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/replication -F import_id=0xe3a5d71a19e7d8bce51bdbd6619eeb057522311d1136f56ffd775a810f8644b4"
 after_script:
   - ls
