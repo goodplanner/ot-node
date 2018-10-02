@@ -27,7 +27,7 @@
     "debug:test:protocol": "mocha --inspect-brk --exit $(find test/protocol -name '*.js')"
   },
   "devDependencies": {
-    "babel-eslint": "^8.2.6",
+    "babel-eslint": "^8.2.6"
   },
   "repository": {
     "type": "git",
