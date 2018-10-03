@@ -20,7 +20,9 @@ before_script:
 script:
   # now we have repo available
   - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/import -F importtype=GS1 -F importfile=@/ot-node/importers/xml_examples/Retail/03_Pink_to_Orange_shipment.xml"
-  - sleep 3
+  - sleep 5
+  - node analysePostResults.js
   - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/replication -F import_id=0xe3a5d71a19e7d8bce51bdbd6619eeb057522311d1136f56ffd775a810f8644b4"
+  - docker logs otnode
 after_script:
   - ls
