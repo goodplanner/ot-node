@@ -19,10 +19,12 @@ before_script:
   - docker -v
 script:
   # now we have repo available
-  - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/import -F importtype=GS1 -F importfile=@/ot-node/importers/xml_examples/Retail/03_Pink_to_Orange_shipment.xml" > postResult.json
+  - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/import -F importtype=GS1 -F importfile=@/ot-node/importers/xml_examples/Retail/03_Pink_to_Orange_shipment.xml" > importResult.json
   - sleep 5
-  - node analysePostResult.js
-  - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/replication -F import_id=0xe3a5d71a19e7d8bce51bdbd6619eeb057522311d1136f56ffd775a810f8644b4"
+  - node analyseImportResult.js
+  - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/replication -F import_id=$IMPORT_ID"
+  # - sleep 120
+  # PROVERA DA U SYSTEM.DB OD OVOG MOG OTNODE DA LI U    TABELI SU STATUS=AKTIVE ZA SVIH PET
   - docker logs otnode
   - docker stop otnode
   - docker rm otnode
