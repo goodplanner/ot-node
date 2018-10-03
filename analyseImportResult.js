@@ -15,8 +15,6 @@ if (!Utilities.isHexStrict(postResult.import_id) || Utilities.isZeroHash(postRes
     process.exit(-1);
 } else {
     console.log('import_id is OK');
-    // TODO process.env.IMPORT_ID = postResult.import_id;
-    console.log(process.env.IMPORT_ID);
 }
 
 if (postResult.message !== 'Import success') {
@@ -33,4 +31,3 @@ if (postResult.message !== 'Import success') {
 // } else {
 //     console.log('wallet is OK');
 // }
-
