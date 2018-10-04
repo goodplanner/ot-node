@@ -9,8 +9,6 @@ env:
 before_install:
 - docker ps -a
 - docker images
-- docker system prune -f
-- docker volume prune -f
 - docker pull $DOCKER_IMAGE_TAG
 - docker run -d --name=otnode -p 8900:8900 -p 5278:5278 -p 3000:3000 --mount source=otnode-vol,destination=/ot-node --mount source=arango-vol,destination=/var/lib/arangodb -e INSTALLATION=local -e TRAVERSE_NAT_ENABLED=1 $DOCKER_IMAGE_TAG
 - docker ps -a
@@ -21,13 +19,15 @@ script:
   # now we have repo available
   - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/import -F importtype=GS1 -F importfile=@/ot-node/importers/xml_examples/Retail/03_Pink_to_Orange_shipment.xml" > importResult.json
   - sleep 5
-  - node analyseImportResult.js
+  - node helpers/analyseImportResult.js
   - export IMPORT_ID=`node -p "require('./importResult.json').import_id"`
   - docker exec otnode /bin/sh -c "curl -X POST http://127.0.0.1:8900/api/replication -F import_id=$IMPORT_ID" > replicationResult.json
-  - node analyseReplicationResult.js
+  - node helpers/analyseReplicationResult.js
   - sleep 10
   # TODO check that otnodes replicated_data table all 5 entries have status=active
   - docker logs otnode
+  - cat importResult.json
+  - cat replicationResult.json
   - docker stop otnode
   - docker rm otnode
 after_script:

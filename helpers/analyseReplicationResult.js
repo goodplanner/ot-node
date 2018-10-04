@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
-const replicationResult = require('./replicationResult.json');
-const Utilities = require('./modules/Utilities');
+const replicationResult = require('./../replicationResult.json');
+const Utilities = require('./../modules/Utilities');
 require('dotenv').config();
 const _ = require('lodash-uuid');
 

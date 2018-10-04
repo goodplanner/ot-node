@@ -1,23 +1,23 @@
 /* eslint-disable max-len */
-const postResult = require('./importResult.json');
-const Utilities = require('./modules/Utilities');
+const importResult = require('./../importResult.json');
+const Utilities = require('./../modules/Utilities');
 require('dotenv').config();
 
-if (!Utilities.isHexStrict(postResult.import_hash) || Utilities.isZeroHash(postResult.import_hash)) {
+if (!Utilities.isHexStrict(importResult.import_hash) || Utilities.isZeroHash(importResult.import_hash)) {
     console.log('import_hash is not OK');
     process.exit(-1);
 } else {
     console.log('import_hash is OK');
 }
 
-if (!Utilities.isHexStrict(postResult.import_id) || Utilities.isZeroHash(postResult.import_id)) {
+if (!Utilities.isHexStrict(importResult.import_id) || Utilities.isZeroHash(importResult.import_id)) {
     console.log('import_id is not OK');
     process.exit(-1);
 } else {
     console.log('import_id is OK');
 }
 
-if (postResult.message !== 'Import success') {
+if (importResult.message !== 'Import success') {
     console.log('message is not OK');
     process.exit(-1);
 } else {
@@ -25,7 +25,7 @@ if (postResult.message !== 'Import success') {
 }
 
 // TODO
-// if (postResult.wallet !== process.env.NODE_WALLET) {
+// if (importResult.wallet !== process.env.NODE_WALLET) {
 //     console.log('wallet is not OK');
 //     process.exit(-1);
 // } else {
