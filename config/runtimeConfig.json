@@ -78,11 +78,11 @@
       "readingContractAddress": "0x71e052f2d2f3af75934593e1858d068bd25b04ba"
     },
     "bugSnag": {
-      "releaseStage": "testnet"
+      "releaseStage": "testnet-lab"
     },
     "autoUpdater": {
       "repo": "OriginTrail/ot-node",
-      "branch": "master"
+      "branch": "feature/testnet"
     }
   }
 }
