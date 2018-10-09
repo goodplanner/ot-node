@@ -66,7 +66,7 @@
     "network": {
       "id": "StablebrokenV1.0.0",
       "bootstraps": [
-        "https://188.166.112.98:5278/#94220fcf314c41f810e6a62c74d152be213b34d2",
+        "https://188.166.112.98:5278/#94220fcf314c41f810e6a62c74d152be213b34d2"
       ],
       "remoteWhitelist": ["54.93.223.161", "127.0.0.1"]
     },
