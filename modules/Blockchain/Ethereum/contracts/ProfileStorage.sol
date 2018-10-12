@@ -106,9 +106,9 @@ contract ProfileStorage {
         profile[identity3].stakeReserved += amount;
     }
 
-    function transferTokens(address identity, uint256 amount)
+    function transferTokens(address wallet, uint256 amount)
     public onlyProfile {
         ERC20 token = ERC20(hub.tokenAddress());
-        token.transfer(identity, amount);
+        token.transfer(wallet, amount);
     }
 }
