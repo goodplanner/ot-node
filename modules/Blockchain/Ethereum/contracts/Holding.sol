@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import './Hub.sol';
+import {Hub} from './Hub.sol';
 import {ERC725} from './ERC725.sol';
 import {HoldingStorage} from './HoldingStorage.sol';
 import {ProfileStorage} from './ProfileStorage.sol';
@@ -21,7 +21,6 @@ contract Holding {
         profileStorage = ProfileStorage(hub.profileStorageAddress());
         profile = Profile(hub.profileAddress());
     }
-
 
     event OfferTask(bytes32 dataSetId, bytes32 dcNodeId, bytes32 offerId, bytes32 task);
     event OfferCreated(bytes32 offerId, bytes32 dcNodeId, uint256 holdingTimeInMinutes, uint256 dataSetSizeInBytes, uint256 tokenAmountPerHolder, uint256 litigationIntervalInMinutes);
@@ -128,8 +127,8 @@ contract Holding {
             "Holding time not yet expired!");
 
         // Release tokens staked by holder and transfer tokens from data creator to holder
-        Profile(hub.profileAddress()).releaseTokens(identity, amountToTransfer);
-        Profile(hub.profileAddress()).transferTokens(holdingStorage.getOfferCreator(offerId), identity, amountToTransfer);
+        profile.releaseTokens(identity, amountToTransfer);
+        profile.transferTokens(holdingStorage.getOfferCreator(offerId), identity, amountToTransfer);
     }
     
     function ecrecovery(bytes32 hash, bytes sig) internal pure returns (address) {

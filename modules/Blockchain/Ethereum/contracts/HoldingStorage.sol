@@ -1,11 +1,6 @@
 pragma solidity ^0.4.24;
 
-contract Hub {
-    address public profileAddress;
-    address public profileStorageAddres;
-    address public holdingAddress;
-    address public holdingStorageAddress;
-}
+import {Hub} from './Hub.sol';
 
 contract HoldingStorage {
     Hub public hub;
@@ -156,7 +151,7 @@ contract HoldingStorage {
 
     struct HolderDefinition {
         uint256 stakedAmount;
-        uint256 litigationEncryptionType;
+        uint8 litigationEncryptionType; // 0 = red, 1 = green, 2 = blue
     }
     mapping(bytes32 => mapping(address => HolderDefinition)) public holder; // holder[offerId][address];
 
@@ -183,7 +178,7 @@ contract HoldingStorage {
     public onlyHolding {
         holder[offerId][identity].stakedAmount = stakedAmount;
     }
-    function setHolderLitigationEncryptionType(bytes32 offerId, address identity, uint256 litigationEncryptionType)
+    function setHolderLitigationEncryptionType(bytes32 offerId, address identity, uint8 litigationEncryptionType)
     public onlyHolding {
         holder[offerId][identity].litigationEncryptionType = litigationEncryptionType;
     }

@@ -35,7 +35,7 @@ contract Profile {
     
     event WithdrawalIntitiated(address profile, uint256 amount, uint256 withdrawalReadyAt);
     event TokenWithdrawalCancelled(address profile);
-    event TokensWithdrawn(address profile, uint256 amounWithdrawn, uint256 newBalance);
+    event TokensWithdrawn(address profile, uint256 amountWithdrawn, uint256 newBalance);
 
     event TokensReleased(address profile, uint256 amount);
     event TokensTransferred(address sender, address receiver, uint256 amount);
@@ -167,7 +167,7 @@ contract Profile {
             identity3,
             amount
         );
-        emit TokensReserved(payer, amount);
+        emit TokensReserved(payer, amount.mul(3));
         emit TokensReserved(identity1, amount);
         emit TokensReserved(identity2, amount);
         emit TokensReserved(identity3, amount);

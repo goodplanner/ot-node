@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import {ERC20} from './TracToken.sol';
-import './Hub.sol';
+import {Hub} from './Hub.sol';
 
 contract ProfileStorage {
     Hub public hub;
