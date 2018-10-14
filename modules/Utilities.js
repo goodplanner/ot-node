@@ -151,7 +151,7 @@ class Utilities {
      * @returns {*} - log function
      */
     static getLogger() {
-        let logLevel = 'trace';
+        let logLevel = 'debug';
         if (process.env.LOGS_LEVEL_DEBUG === 1) {
             logLevel = 'debug';
         }
