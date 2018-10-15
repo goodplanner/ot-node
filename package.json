@@ -1,6 +1,6 @@
 {
   "name": "origintrail-node",
-  "version": "1.3.45-test",
+  "version": "1.3.46-test",
   "description": "OriginTrail node",
   "main": ".eslintrc.js",
   "config": {
@@ -81,6 +81,7 @@
     "hdkey": "^0.8.0",
     "ip": "^1.1.5",
     "ipaddr.js": "^1.8.0",
+    "is-port-reachable": "^2.0.0",
     "js-levenshtein": "^1.1.3",
     "js-sha3": "^0.8.0",
     "json-stable-stringify": "^1.0.1",

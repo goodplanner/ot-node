@@ -13,6 +13,8 @@ const leveldown = require('leveldown');
 const PeerCache = require('./peer-cache');
 const ip = require('ip');
 const KadenceUtils = require('@kadenceproject/kadence/lib/utils.js');
+const isPortReachable = require('is-port-reachable');
+const { IncomingMessage, OutgoingMessage } = require('./logger');
 
 const pjson = require('../../../package.json');
 
@@ -172,10 +174,9 @@ class Kademlia {
             }
 
             // Use verbose logging if enabled
-            if (parseInt(config.verbose_logging, 10)) {
-                this.node.rpc.deserializer.append(new kadence.logger.IncomingMessage(this.log));
-                this.node.rpc.serializer.prepend(new kadence.logger.OutgoingMessage(this.log));
-            }
+            this.node.rpc.deserializer.append(new IncomingMessage(this.log));
+            this.node.rpc.serializer.prepend(new OutgoingMessage(this.log));
+
             // Cast network nodes to an array
             if (typeof config.network_bootstrap_nodes === 'string') {
                 config.network_bootstrap_nodes = config.network_bootstrap_nodes.trim().split();
@@ -491,6 +492,9 @@ class Kademlia {
             node.getContact = async (contactId, retry) => {
                 let contact = node.router.getContactByNodeId(contactId);
                 if (contact && contact.hostname) {
+                    this.log.debug(`Found contact in routing table. ${contactId} - ${contact.hostname}`);
+                    const reachable = await isPortReachable(contact.port, { host: contact.hostname });
+                    this.log.debug(`Host reachable: ${reachable}.`);
                     return contact;
                 }
                 contact = await this.node.peercache.getExternalPeerInfo(contactId);
@@ -502,10 +506,15 @@ class Kademlia {
                         contact = contactInfo[1];
                         this.node.router.addContactByNodeId(contactId, contact);
                     }
+
+                    this.log.debug(`Found contact in peer cache. ${contactId} - ${contact.hostname}`);
                 }
                 if (contact && contact.hostname) {
+                    const reachable = await isPortReachable(contact.port, { host: contact.hostname });
+                    this.log.debug(`Host reachable: ${reachable}.`);
                     return contact;
                 }
+                this.log.debug(`Contact not found. Refreshing ${contactId}.`);
                 // try to find out about the contact from peers
                 await node.refreshContact(contactId, retry);
                 return this.node.router.getContactByNodeId(contactId);
