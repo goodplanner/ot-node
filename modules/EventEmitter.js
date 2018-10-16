@@ -859,9 +859,9 @@ class EventEmitter {
 
         // async
         this._on('kad-payload-request', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             logger.info(`Data for replication arrived from ${transport.extractSenderID(request)}`);
 
             const message = transport.extractMessage(request);
@@ -883,9 +883,9 @@ class EventEmitter {
 
         // async
         this._on('kad-replication-request', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             const message = transport.extractMessage(request);
             const { import_id, wallet } = message;
             const { wallet: senderWallet } = transport.extractSenderInfo(request);
@@ -982,9 +982,9 @@ class EventEmitter {
 
         // async
         this._on('kad-replication-finished', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             logger.notify('Replication finished, preparing to start challenges');
         });
 
@@ -1030,9 +1030,9 @@ class EventEmitter {
 
         // async
         this._on('kad-data-location-response', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             logger.info('DH confirms possesion of required data');
             try {
                 const dataLocationResponseObject = transport.extractMessage(request);
@@ -1053,9 +1053,9 @@ class EventEmitter {
 
         // async
         this._on('kad-data-read-request', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             logger.info('Request for data read received');
 
             const dataReadRequestObject = transport.extractMessage(request);
@@ -1071,9 +1071,9 @@ class EventEmitter {
 
         // async
         this._on('kad-data-read-response', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             logger.info('Encrypted data received');
 
             const reqStatus = transport.extractRequestStatus(request);
@@ -1100,9 +1100,9 @@ class EventEmitter {
 
         // async
         this._on('kad-send-encrypted-key', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             logger.info('Initial info received to unlock data');
 
             const encryptedPaddedKeyObject = transport.extractMessage(request);
@@ -1132,9 +1132,9 @@ class EventEmitter {
 
         // async
         this._on('kad-encrypted-key-process-result', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             const senderId = transport.extractSenderID(request);
             const { status } = transport.extractMessage(request);
             if (status === 'SUCCESS') {
@@ -1146,9 +1146,9 @@ class EventEmitter {
 
         // async
         this._on('kad-verify-import-request', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             const { wallet: dhWallet } = transport.extractSenderInfo(request);
             const { epk, importId, encryptionKey } = transport.extractMessage(request);
 
@@ -1160,9 +1160,9 @@ class EventEmitter {
 
         // async
         this._on('kad-verify-import-response', async (request, response) => {
-            await transport.sendResponse(response, {
-                status: 'OK',
-            });
+// await transport.sendResponse(response, {
+//                status: 'OK',
+//            });
             const { status, import_id } = transport.extractMessage(request);
             if (status === 'success') {
                 logger.notify(`Key verification for import ${import_id} succeeded`);
