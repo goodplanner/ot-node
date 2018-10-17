@@ -426,42 +426,42 @@ class Kademlia {
         this.node.use('kad-payload-request', (request, response, next) => {
             this.log.debug('kad-payload-request received');
             this.emitter.emit('kad-payload-request', request);
-            next();
+            response.send([]);
         });
 
         // async
         this.node.use('kad-replication-request', (request, response, next) => {
             this.log.debug('kad-replication-request received');
             this.emitter.emit('kad-replication-request', request);
-            next();
+            response.send([]);
         });
 
         // async
         this.node.use('kad-replication-finished', (request, response, next) => {
             this.log.debug('kad-replication-finished received');
             this.emitter.emit('kad-replication-finished', request);
-            next();
+            response.send([]);
         });
 
         // async
         this.node.use('kad-data-location-response', (request, response, next) => {
             this.log.debug('kad-data-location-response received');
             this.emitter.emit('kad-data-location-response', request);
-            next();
+            response.send([]);
         });
 
         // async
         this.node.use('kad-data-read-request', (request, response, next) => {
             this.log.debug('kad-data-read-request received');
             this.emitter.emit('kad-data-read-request', request);
-            next();
+            response.send([]);
         });
 
         // async
         this.node.use('kad-data-read-response', (request, response, next) => {
             this.log.debug('kad-data-read-response received');
             this.emitter.emit('kad-data-read-response', request);
-            next();
+            response.send([]);
         });
 
         // async
@@ -480,14 +480,14 @@ class Kademlia {
         this.node.use('kad-verify-import-request', (request, response, next) => {
             this.log.debug('kad-verify-import-request received');
             this.emitter.emit('kad-verify-import-request', request);
-            next();
+            response.send([]);
         });
 
         // async
         this.node.use('kad-verify-import-response', (request, response, next) => {
             this.log.debug('kad-verify-import-response received');
             this.emitter.emit('kad-verify-import-response', request);
-            next();
+            response.send([]);
         });
 
         // sync
@@ -521,10 +521,10 @@ class Kademlia {
                 this.log.debug(`Network request ignored. Contact ${JSON.stringify(request.contact)}`);
                 response.send([]);
                 return;
+            } else if (err) {
+                this.log.warn(`KADemlia error. ${err}. Request: ${request}.`);
+                response.error(err.message);
             }
-
-            this.log.warn(`KADemlia error. ${err}. Request: ${request}.`);
-            response.send({ error: err.message });
         });
 
         // creates Kadence plugin for RPC calls

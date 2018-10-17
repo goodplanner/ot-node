@@ -142,6 +142,7 @@ class Transport {
                     halt(err);
                     return;
                 }
+                this.logger.debug(`Calling ${fn} operation failed at ${iteration} iteration. Contact ${contactId}, ${err}.\n${err.stack}`);
                 throw err;
             }
         }, opts);
