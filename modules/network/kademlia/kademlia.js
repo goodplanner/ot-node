@@ -15,6 +15,7 @@ const ip = require('ip');
 const KadenceUtils = require('@kadenceproject/kadence/lib/utils.js');
 const isPortReachable = require('is-port-reachable');
 const { IncomingMessage, OutgoingMessage } = require('./logger');
+const Queue = require('better-queue');
 
 const pjson = require('../../../package.json');
 
@@ -44,7 +45,30 @@ class Kademlia {
 
         // Initialize private extended key
         utilities.createPrivateExtendedKey(kadence);
+
+        const kadNode = this;
+        this.queue = new Queue(
+            async (args, cb) => {
+                const { contactId, future } = args;
+                const result = kadNode.findNode(contactId);
+                future.resolve(result.contact);
+                cb();
+            },
+            { concurrent: 1 },
+        );
     }
+
+    async iterativeFindContact(contactId) {
+        return new Promise((async (resolve, reject) => {
+            this.queue.push({
+                contactId,
+                future: {
+                    resolve, reject,
+                },
+            });
+        }));
+    }
+
 
     /**
      * Initializes keys
@@ -573,38 +597,27 @@ class Kademlia {
                             if (contact) {
                                 return contact;
                             }
-                            return new Promise((accept, reject) => {
+                            return new Promise(async (accept, reject) => {
                                 this.log.debug(`Refreshing contact: ${contactId}.`);
-                                this.node.iterativeFindNode(contactId, (error) => {
-                                    if (error) {
-                                        reject(error);
-                                        return;
-                                    }
-                                    const freshContact =
-                                        this.node.router.getContactByNodeId(contactId);
-                                    this.log.debug(`Refreshing done for: ${contactId}. ${freshContact.hostname}:${freshContact.port}.`);
-                                    accept(freshContact);
-                                });
+
+                                const freshContact =
+                                    await this.iterativeFindContact(contactId);
+                                this.log.debug(`Refreshing done for: ${contactId}. ${freshContact.hostname}:${freshContact.port}.`);
+                                accept(freshContact);
                             });
                         });
                     }
                 }
                 this.log.debug(`No knowledge about contact ${contactId}. Doing iterative find.`);
-                return new Promise((accept, reject) => {
-                    this.node.iterativeFindNode(contactId, (error) => {
-                        if (error) {
-                            reject(error);
-                            return;
-                        }
-                        const freshContact =
-                            this.node.router.getContactByNodeId(contactId);
-                        if (freshContact) {
-                            this.log.debug(`Iterative find done for: ${contactId}. ${freshContact.hostname}:${freshContact.port}.`);
-                        } else {
-                            this.log.debug(`Iterative find failed for: ${contactId}.`);
-                        }
-                        accept(freshContact);
-                    });
+                return new Promise(async (accept, reject) => {
+                    const freshContact =
+                        await this.iterativeFindContact(contactId);
+                    if (freshContact) {
+                        this.log.debug(`Iterative find done for: ${contactId}. ${freshContact.hostname}:${freshContact.port}.`);
+                    } else {
+                        this.log.debug(`Iterative find failed for: ${contactId}.`);
+                    }
+                    accept(freshContact);
                 });
             };
 
