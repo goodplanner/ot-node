@@ -545,9 +545,7 @@ class Kademlia {
             node.getContact = async (contactId, retry) => {
                 let contact = node.router.getContactByNodeId(contactId);
                 if (contact && contact.hostname) {
-                    this.log.debug(`Found contact in routing table. ${contactId} - ${contact.hostname}`);
-                    const reachable = await isPortReachable(contact.port, { host: contact.hostname });
-                    this.log.debug(`Host reachable: ${reachable}.`);
+                    this.log.debug(`Found contact in routing table. ${contactId} - ${contact.hostname}:${contact.port}`);
                     return contact;
                 }
                 contact = await this.node.peercache.getExternalPeerInfo(contactId);
@@ -560,21 +558,54 @@ class Kademlia {
                         this.node.router.addContactByNodeId(contactId, contact);
                     }
 
-                    this.log.debug(`Found contact in peer cache. ${contactId} - ${contact.hostname}`);
+                    if (contact && contact.hostname) {
+                        this.log.debug(`Found contact in peer cache. ${contactId} - ${contact.hostname}:${contact.port}.`);
+                        return new Promise((accept, reject) => {
+                            this.node.ping(contact, (error) => {
+                                if (error) {
+                                    this.log.debug(`Contact ${contactId} not reachable: ${error}.`);
+                                    accept(null);
+                                    return;
+                                }
+                                accept(contact);
+                            });
+                        }).then((contact) => {
+                            if (contact) {
+                                return contact;
+                            }
+                            return new Promise((accept, reject) => {
+                                this.log.debug(`Refreshing contact: ${contactId}.`);
+                                this.node.iterativeFindNode(contactId, (error) => {
+                                    if (error) {
+                                        reject(error);
+                                        return;
+                                    }
+                                    const freshContact =
+                                        this.node.router.getContactByNodeId(contactId);
+                                    this.log.debug(`Refreshing done for: ${contactId}. ${freshContact.hostname}:${freshContact.port}.`);
+                                    accept(freshContact);
+                                });
+                            });
+                        });
+                    }
                 }
-                if (contact && contact.hostname) {
-                    const reachable = await isPortReachable(contact.port, { host: contact.hostname });
-                    this.log.debug(`Host reachable: ${reachable}.`);
-                    return contact;
-                }
-
-                throw Error(`Failed to find contact ${contactId}.`);
-                // this.log.debug(`Contact not found. Refreshing ${contactId}.`);
-                // // try to find out about the contact from peers
-                // await node.refreshContact(contactId, retry);
-                // contact = this.node.router.getContactByNodeId(contactId);
-                // this.log.debug(`Refreshing done for: ${contactId}. Contact ${JSON.stringify(contact)}`);
-                // return contact;
+                this.log.debug(`No knowledge about contact ${contactId}. Doing iterative find.`);
+                return new Promise((accept, reject) => {
+                    this.node.iterativeFindNode(contactId, (error) => {
+                        if (error) {
+                            reject(error);
+                            return;
+                        }
+                        const freshContact =
+                            this.node.router.getContactByNodeId(contactId);
+                        if (freshContact) {
+                            this.log.debug(`Iterative find done for: ${contactId}. ${freshContact.hostname}:${freshContact.port}.`);
+                        } else {
+                            this.log.debug(`Iterative find failed for: ${contactId}.`);
+                        }
+                        accept(freshContact);
+                    });
+                });
             };
 
             /**
@@ -902,6 +933,23 @@ class Kademlia {
             }
         });
         return message;
+    }
+
+    async findNode(contactId) {
+        return new Promise((accept, reject) => {
+            this.node.iterativeFindNode(contactId, (error, result) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+
+                accept({
+                    contact: this.node.router.getContactByNodeId(contactId),
+                    neighbors: result,
+                });
+                accept(result);
+            });
+        });
     }
 }
 

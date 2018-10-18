@@ -162,6 +162,14 @@ class Transport {
     dumpContacts() {
         return this.network.dumpContacts();
     }
+
+    async findNode(nodeId) {
+        return this.network.findNode(nodeId);
+    }
+
+    async getContact(contactId) {
+        return this.network.node.getContact(contactId);
+    }
 }
 
 /**
