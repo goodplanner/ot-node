@@ -50,7 +50,7 @@ class Kademlia {
         this.queue = new Queue(
             async (args, cb) => {
                 const { contactId, future } = args;
-                const result = kadNode.findNode(contactId);
+                const result = await kadNode.findNode(contactId);
                 future.resolve(result.contact);
                 cb();
             },
