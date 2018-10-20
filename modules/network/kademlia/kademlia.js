@@ -575,6 +575,9 @@ class Kademlia {
                 contact = await this.node.peercache.getExternalPeerInfo(contactId);
                 if (contact) {
                     const contactInfo = KadenceUtils.parseContactURL(contact);
+contact = contactInfo[1];
+this.log.debug(`Found contact in peer cache. ${contactId} - ${contact.hostname}:${contact.port}.`);
+return contact;
                     // refresh bucket
                     if (contactInfo) {
                         // eslint-disable-next-line
@@ -608,6 +611,7 @@ class Kademlia {
                         });
                     }
                 }
+throw Error(`Didn't find contact ${contactId}.`);
                 this.log.debug(`No knowledge about contact ${contactId}. Doing iterative find.`);
                 return new Promise(async (accept, reject) => {
                     const freshContact =
