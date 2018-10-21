@@ -250,6 +250,11 @@ class Utilities {
      * @return {*}
      */
     static transformLog(level, msg) {
+        return {
+            level,
+            msg,
+        };
+
         if (msg.startsWith('connection timed out')) {
             return null;
         }
