@@ -319,7 +319,7 @@ class Kademlia {
                 this.log.info(`Syncing with peers via ${url}.`);
                 const contact = kadence.utils.parseContactURL(url);
 
-                this._join(contact, (err) => {
+                this.node.join(contact, (err) => {
                     if (err) {
                         reject(err);
                         return;
@@ -350,40 +350,12 @@ class Kademlia {
 
         if (result) {
             this.log.important('Initial sync with other peers done');
-
-            setTimeout(() => {
-                this.node.refresh(this.node.router.getClosestBucket() + 1);
-            }, 5000);
             return true;
         } else if (this.config.is_bootstrap_node) {
             this.log.info('Bootstrap node couldn\'t contact peers. Waiting for some peers.');
             return true;
         }
         return false;
-    }
-
-    _join([identity, contact], callback) {
-        /* istanbul ignore else */
-        if (callback) {
-            this.node.once('join', callback);
-            this.node.once('error', callback);
-        }
-
-        this.node.router.addContactByNodeId(identity, contact);
-        async.series([
-            next => this.node.iterativeFindNode(this.identity.toString('hex'), next),
-        ], (err) => {
-            if (err) {
-                this.node.emit('error', err);
-            } else {
-                this.node.emit('join');
-            }
-
-            if (callback) {
-                this.node.removeListener('join', callback);
-                this.node.removeListener('error', callback);
-            }
-        });
     }
 
     /**
