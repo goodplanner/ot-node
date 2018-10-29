@@ -56,9 +56,7 @@ class DCService {
         const commandSequence = [
             'dcOfferPrepareCommand',
             'dcOfferCreateDbCommand',
-            'dcOfferCreateBcCommand',
-            'dcOfferTaskCommand',
-            'dcOfferChooseCommand'];
+            'dcOfferCreateBcCommand'];
         const depositCommand = await this.chainDepositCommandIfNeeded(
             tokenAmountPerHolder,
             commandData,

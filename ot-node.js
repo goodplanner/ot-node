@@ -903,7 +903,7 @@ class OTNode {
         server.get('/network/chaos/:hops', (req, res) => {
             log.api('P2P CHAOS request received');
 
-            emitter.emit('api-chaos', req.query.hops);
+            emitter.emit('api-chaos', req.params.hops);
             res.status(200);
             res.send({ message: 'OK' });
         });

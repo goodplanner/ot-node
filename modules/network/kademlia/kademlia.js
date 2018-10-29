@@ -448,7 +448,7 @@ class Kademlia {
             this.log.info(`kad-chaos received from ${this.extractSenderID(request)}`);
             response.send([]);
             this.log.info(`response sent to ${this.extractSenderID(request)}`);
-            this.emitter.emit('api-chaos');
+            this.emitter.emit('api-chaos', this.extractMessage(request));
         });
 
         // sync
