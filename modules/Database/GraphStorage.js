@@ -38,6 +38,7 @@ class GraphStorage {
                         await this.__initDatabase__();
                         resolve(this.db);
                     } catch (error) {
+                        console.log(error);
                         reject(Error('Unable to connect to graph database'));
                     }
                     break;

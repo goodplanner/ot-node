@@ -14,16 +14,13 @@ class ZK {
         this.redSquare = BN.red(this.nSquare);
         this.g = this.n.add(this.one).toRed(this.redSquare);
 
-        this.log = ctx.logger || console;
+        this.log = ctx.logger;
     }
 
     encrypt(m, r) {
         return (this.g).redPow(m).redMul(r.redPow(this.n));
     }
 
-    generateR() {
-        return new BN(this.generatePrime()).mod(this.n);
-    }
     generatePrime() {
         let isPrime;
         let pr;
@@ -42,55 +39,12 @@ class ZK {
         return pr;
     }
 
-    P(eventId, inputQuantities, outputQuantities) {
-        const all_units = {};
-        const response = {};
-        const batches = {};
+    P(importId, eventId, inputQuantities, outputQuantities) {
+        const e = new BN(sha3(importId, eventId).substring(0, 10), 16);
 
-        for (const input of inputQuantities) {
-            const { unit } = input;
-            if (all_units[unit] == null) {
-                all_units[unit] = true;
-            }
+        let r = new BN(this.generatePrime()).mod(this.n);
 
-            if (batches[input.object] == null) {
-                batches[input.object] = {};
-            }
-
-            batches[input.object][unit] = this.encrypt(
-                new BN(input.quantity),
-                new BN(input.r).mod(this.n).toRed(this.redSquare),
-            );
-        }
-
-        for (const output of outputQuantities) {
-            const { unit } = output;
-            if (all_units[unit] == null) {
-                all_units[unit] = true;
-            }
-
-            if (batches[output.object] == null) {
-                batches[output.object] = {};
-            }
-
-            batches[output.object][unit] = this.encrypt(
-                new BN(output.quantity),
-                new BN(output.r).mod(this.n).toRed(this.redSquare),
-            );
-        }
-
-        for (const unit in all_units) {
-            response[unit] = this._P(eventId, inputQuantities, outputQuantities, unit);
-        }
-
-        return { quantities: response, batches };
-    }
-
-    _P(eventId, inputQuantities, outputQuantities, unit) {
-        const e = new BN(sha3(eventId).substring(0, 10), 16);
-
-        // let r = this.generateR();
-        let rand = '';
+        const a = this.encrypt(this.zero, r.toRed(this.redSquare));
 
         const inputs = [];
         const outputs = [];
@@ -101,86 +55,82 @@ class ZK {
         // let rs = [];
 
         for (const i in inputQuantities) {
-            if (inputQuantities[i].unit === unit) {
-                const rawQuantity = inputQuantities[i].quantity;
-                const quantity = new BN(rawQuantity);
+            const rawQuantity = inputQuantities[i].quantity;
+            const quantity = new BN(rawQuantity);
+            const { unit } = inputQuantities[i];
 
-                let randomness;
-                if (inputQuantities[i].r !== undefined) {
-                    randomness = new BN(inputQuantities[i].r).mod(this.n).toRed(this.redSquare);
-                } else {
-                    randomness = new BN(this.generatePrime()).mod(this.n).toRed(this.redSquare);
-                }
-
-                rand = inputQuantities[i].r;
-
-                const encryptedInput = this.encrypt(quantity, randomness);
-                // let encryptedNegInput = this.encrypt(this.n.sub(quantity), negRandomness);
-
-                // rs.push(randomness.toNumber())
-
-                R = R.redMul(randomness);
-                Z = Z.redMul(encryptedInput);
-
-                inputs.push({
-                    object: inputQuantities[i].object,
-                    added: inputQuantities[i].added,
-                    public: {
-                        enc: encryptedInput,
-                    },
-                    private: {
-                        object: inputQuantities[i].object,
-                        r: randomness.toString('hex'),
-                        quantity: rawQuantity,
-                    },
-                });
+            let randomness;
+            if (inputQuantities[i].r !== undefined) {
+                randomness = new BN(inputQuantities[i].r).mod(this.n).toRed(this.redSquare);
+            } else {
+                randomness = new BN(this.generatePrime()).mod(this.n).toRed(this.redSquare);
             }
+
+            const encryptedInput = this.encrypt(quantity, randomness);
+            // let encryptedNegInput = this.encrypt(this.n.sub(quantity), negRandomness);
+
+            // rs.push(randomness.toNumber())
+
+            R = R.redMul(randomness);
+            Z = Z.redMul(encryptedInput);
+
+            inputs.push({
+                object: inputQuantities[i].object,
+                added: inputQuantities[i].added,
+                public: {
+                    enc: encryptedInput,
+                    unit,
+                },
+                private: {
+                    object: inputQuantities[i].object,
+                    r: randomness.toString(),
+                    quantity: rawQuantity,
+                    unit,
+                },
+            });
         }
 
         for (const i in outputQuantities) {
-            if (outputQuantities[i].unit === unit) {
-                const rawQuantity = outputQuantities[i].quantity;
-                const quantity = new BN(rawQuantity);
+            const rawQuantity = outputQuantities[i].quantity;
+            const quantity = new BN(rawQuantity);
+            const { unit } = outputQuantities[i];
 
-                let randomness;
-                if (outputQuantities[i].r !== undefined) {
-                    randomness = new BN(outputQuantities[i].r).mod(this.n).toRed(this.redSquare);
-                } else {
-                    randomness = new BN(this.generatePrime()).mod(this.n).toRed(this.redSquare);
-                }
-
-                rand = outputQuantities[i].r;
-
-                const encryptedOutput = this.encrypt(quantity, randomness);
-                const encryptedNegOutput = encryptedOutput.redInvm();
-
-                // rs.push(randomness.toNumber())
-
-                R = R.redMul(randomness.redInvm());
-                Z = Z.redMul(encryptedNegOutput);
-
-                outputs.push({
-                    object: outputQuantities[i].object,
-                    added: outputQuantities[i].added,
-                    public: {
-                        enc: encryptedOutput.toString('hex'),
-                        // encNeg: '0x' + encryptedNegOutput.toString('hex'),
-                    },
-                    private: {
-                        object: outputQuantities[i].object,
-                        r: randomness.toString('hex'),
-                        // rp : negRandomness,
-                        quantity: rawQuantity,
-                    },
-                });
+            let randomness;
+            if (outputQuantities[i].r !== undefined) {
+                randomness = new BN(outputQuantities[i].r).mod(this.n).toRed(this.redSquare);
+            } else {
+                randomness = new BN(this.generatePrime()).mod(this.n).toRed(this.redSquare);
             }
+
+            const encryptedOutput = this.encrypt(quantity, randomness);
+            const encryptedNegOutput = encryptedOutput.redInvm();
+
+            // rs.push(randomness.toNumber())
+
+            R = R.redMul(randomness.redInvm());
+            Z = Z.redMul(encryptedNegOutput);
+
+            outputs.push({
+                object: outputQuantities[i].object,
+                added: outputQuantities[i].added,
+                public: {
+                    enc: encryptedOutput.toString('hex'),
+                    // encNeg: '0x' + encryptedNegOutput.toString('hex'),
+                    unit,
+                },
+                private: {
+                    object: outputQuantities[i].object,
+                    r: randomness.toString(),
+                    // rp : negRandomness,
+                    quantity: rawQuantity,
+                    unit,
+                },
+            });
         }
 
 
-        // r = r.toRed(this.redSquare);
-        const r = new BN(rand).toRed(this.redSquare);
+        r = r.toRed(this.redSquare);
         const zp = r.redMul(R.redPow(e));
-        const a = this.encrypt(this.zero, r);
 
         const res = this.V(e, a, Z, zp);
         /*
@@ -200,6 +150,7 @@ class ZK {
             e: e.toString('hex'),
             a: a.toString('hex'),
             zp: zp.toString('hex'),
+            importId,
         };
 
         // return res;

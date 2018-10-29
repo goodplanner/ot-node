@@ -5,7 +5,6 @@ const bytes = require('utf8-length');
 const utilities = require('./Utilities');
 const uuidv4 = require('uuid/v4');
 const { sha3_256 } = require('js-sha3');
-const { denormalizeGraph, normalizeGraph } = require('./Database/graph-converter');
 
 /**
  * Import related utilities
@@ -84,30 +83,29 @@ class ImportUtilities {
      * @param edges     Import edges
      * @returns {{edges: *, vertices: *}}
      */
-    static normalizeImport(dataSetId, vertices, edges) {
+    static normalizeImport(vertices, edges) {
         ImportUtilities.sort(edges);
         ImportUtilities.sort(vertices);
 
-        // let normEdges = null;
-        // if (edges) {
-        //     normEdges = edges.map(e => utilities.sortObject({
-        //         _key: e._key,
-        //         _from: e._from,
-        //         _to: e._to,
-        //         edge_type: e.edge_type,
-        //     }));
-        // }
-        //
-        // let normVertices = null;
-        // if (vertices) {
-        //     normVertices = normalizeGraph(dataSetId, vertices, []).vertices;
-        // }
+        let normEdges = null;
+        if (edges) {
+            normEdges = edges.map(e => utilities.sortObject({
+                _key: e._key,
+                identifiers: e.identifiers,
+                _from: e._from,
+                _to: e._to,
+                edge_type: e.edge_type,
+            }));
+        }
 
-        const { vertices: normVertices, edges: normEdges } = normalizeGraph(
-            dataSetId,
-            vertices,
-            edges,
-        );
+        let normVertices = null;
+        if (vertices) {
+            normVertices = vertices.map(v => utilities.sortObject({
+                _key: v._key,
+                identifiers: v.identifiers,
+                data: v.data,
+            }));
+        }
 
         return {
             edges: normEdges,
@@ -117,14 +115,13 @@ class ImportUtilities {
 
     /**
      * Calculate import hash
-     * @param dataSetId Data set ID
      * @param vertices  Import vertices
      * @param edges     Import edges
      * @returns {*}
      */
-    static importHash(dataSetId, vertices, edges) {
-        const normalized = ImportUtilities.normalizeImport(dataSetId, vertices, edges);
-        return utilities.normalizeHex(sha3_256(utilities.stringify(normalized, 0)));
+    static importHash(vertices, edges) {
+        const normalized = ImportUtilities.normalizeImport(vertices, edges);
+        return utilities.normalizeHex(sha3_256(utilities.stringify(normalized, 0)).padStart(64, '0'));
     }
 
     /**
@@ -218,7 +215,7 @@ class ImportUtilities {
      */
     static deleteInternal(vertices) {
         for (const vertex of vertices) {
-            delete vertex.datasets;
+            delete vertex.imports;
             delete vertex.private;
             delete vertex.version;
         }

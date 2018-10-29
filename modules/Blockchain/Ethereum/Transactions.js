@@ -80,7 +80,6 @@ class Transactions {
         );
 
         const transaction = new Tx(rawTx);
-
         transaction.sign(this.privateKey);
 
         const serializedTx = transaction.serialize().toString('hex');

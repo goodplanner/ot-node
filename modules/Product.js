@@ -31,20 +31,6 @@ class Product {
         });
     }
 
-
-    convertToDataLocationQuery(query) {
-        const dlQuery = [];
-        for (const key in query) {
-            dlQuery.push({
-                path: key,
-                value: query[key],
-                opcode: 'EQ',
-            });
-        }
-
-        return dlQuery;
-    }
-
     /**
      * Gets trail based on query parameter map
      * @param queryObject   Query parameter map
@@ -52,30 +38,26 @@ class Product {
      */
     getTrail(queryObject) {
         return new Promise((resolve, reject) => {
-            // if (queryObject.restricted !== undefined) {
-            //     delete queryObject.restricted;
-            // }
+            if (queryObject.restricted !== undefined) {
+                delete queryObject.restricted;
+            }
 
-            const dlQuery = this.convertToDataLocationQuery(queryObject);
-
-            this.graphStorage.dataLocationQuery(dlQuery).then(async (response) => {
-                if (response[0].objects.length === 0) {
+            this.graphStorage.findVertices(queryObject).then((vertices) => {
+                if (vertices.length === 0) {
                     resolve([]);
                     return;
                 }
 
-                const responseData = [];
+                const start_vertex = vertices[0];
                 const depth = this.graphStorage.getDatabaseInfo().max_path_length;
-
-                for (const start_vertex of response[0].objects) {
-                    // eslint-disable-next-line
-                   const virtualGraph = await this.graphStorage.findTraversalPath(start_vertex, depth);
-                    responseData.push({
-                        start: start_vertex._key,
-                        data: virtualGraph.data,
+                this.graphStorage.findTraversalPath(start_vertex, depth)
+                    .then((virtualGraph) => {
+                        virtualGraph = this.consensusCheck(virtualGraph);
+                        virtualGraph = this.zeroKnowledge(virtualGraph);
+                        resolve(virtualGraph.data);
+                    }).catch((err) => {
+                        reject(err);
                     });
-                }
-                resolve(responseData);
             }).catch((error) => {
                 reject(error);
             });

@@ -13,10 +13,8 @@ class Ethereum {
         emitter,
         web3,
         logger,
-        appState,
     }) {
         // Loading Web3
-        this.appState = appState;
         this.emitter = emitter;
         this.web3 = web3;
         this.log = logger;
@@ -613,11 +611,7 @@ class Ethereum {
     async subscribeToEventPermanent(event) {
         const startBlockNumber = await this.web3.eth.getBlockNumber();
 
-        const that = this;
-        return setInterval(async () => {
-            if (!that.appState.started) {
-                return;
-            }
+        const handle = setInterval(async () => {
             const where = {
                 [Op.or]: event.map(e => ({ event: e })),
                 block: { [Op.gte]: startBlockNumber },
@@ -633,6 +627,8 @@ class Ethereum {
                 });
             }
         }, 2000);
+
+        return handle;
     }
 
     /**
@@ -887,7 +883,7 @@ class Ethereum {
      * @returns {Promise<boolean>}
      */
     async getBalances() {
-        this.log.trace('Checking balances');
+        this.log.trace('Checking ballances');
         let enoughETH = true;
         let enoughATRAC = true;
         try {
@@ -896,7 +892,7 @@ class Ethereum {
                 this.config.wallet_address,
             );
             this.log.info(`Balance of ETH: ${etherBalance}`);
-            if (etherBalance <= 0.01) {
+            if (etherBalance <= 0) {
                 enoughETH = false;
             }
 
@@ -906,7 +902,7 @@ class Ethereum {
                 this.tokenContractAddress,
             );
             this.log.info(`Balance of ATRAC: ${atracBalance}`);
-            if (atracBalance <= 100) {
+            if (enoughATRAC <= 0) {
                 enoughATRAC = false;
             }
         } catch (error) {

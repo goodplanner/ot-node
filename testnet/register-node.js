@@ -13,32 +13,14 @@ const Umzug = require('umzug');
 const Models = require('../models');
 const pjson = require('../package.json');
 const configjson = require('../config/config.json');
-const argv = require('minimist')(process.argv.slice(2));
 
 const web3 = new Web3(new Web3.providers.HttpProvider('https://rinkeby.infura.io/1WRiEqAQ9l4SW6fGdiDt'));
 const defaultConfig = configjson[process.env.NODE_ENV];
 const localConfiguration = rc(pjson.name, defaultConfig);
 
 // Path to system.db.
-let dbPath;
-
-if (argv.configDir) {
-    localConfiguration.appDataPath = argv.configDir;
-    Models.sequelize.options.storage = path.join(localConfiguration.appDataPath, 'system.db');
-    console.log(`congigDir given as param '${argv.configDir}'.`);
-} else {
-    localConfiguration.appDataPath = path.join(
-        homedir,
-        `.${pjson.name}rc`,
-        process.env.NODE_ENV,
-    );
-}
-
-if (fs.existsSync(path.join(localConfiguration.appDataPath, 'config.json'))) {
-    const storedConfig = JSON.parse(fs.readFileSync(path.join(localConfiguration.appDataPath, 'config.json'), 'utf8'));
-    console.log(`Found previous configuration\n${storedConfig}`);
-    Object.assign(localConfiguration, storedConfig);
-}
+const dbPath = '/ot-node/data/system.db';
+Models.sequelize.options.storage = dbPath;
 
 const umzug_migrations = new Umzug({
 
@@ -144,7 +126,7 @@ class RegisterNode {
 
     setConfig() {
         return new Promise(async (resolve, reject) => {
-            if (!process.env.NODE_WALLET || !process.env.NODE_PRIVATE_KEY) {
+            if (!localConfiguration.node_wallet) {
                 const { wallet, pk } = await this.generateWallet();
                 localConfiguration.node_wallet = wallet;
                 localConfiguration.node_private_key = pk;
@@ -210,3 +192,4 @@ class RegisterNode {
 }
 // eslint-disable-next-line no-new
 (new RegisterNode());
+

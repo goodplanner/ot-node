@@ -85,21 +85,20 @@ describe('Checks DCOfferCreateDatabaseCommand execute() logic', function () {
         myGraphStorage = await graphStorage.connect();
         myConfig = await container.resolve('config');
 
-        const dataSetId = `0x${'1234'.padStart(64, '0')}`;
         const offer = await models.offers.create({
-            data_set_id: dataSetId,
+            data_set_id: '0x1234',
             message: 'Offer is pending',
             status: 'PENDING',
         });
 
         myCommand = {
             data: {
-                dataSetId,
+                dataSetId: '0x1234',
                 internalOfferId: offer.id,
                 dataRootHash: '0xfe109af514aef462b86a02e032d1add2ce59a224cd095aa87716b1ad26aa08ca',
-                redLitigationHash: `0x${'2456'.padStart(64, '0')}`,
-                blueLitigationHash: `0x${'2457'.padStart(64, '0')}`,
-                greenLitigationHash: `0x${'2458'.padStart(64, '0')}`,
+                redLitigationHash: '0x2456',
+                blueLitigationHash: '0x2457',
+                greenLitigationHash: '0x2458',
                 holdingTimeInMinutes: 60,
                 tokenAmountPerHolder: Utilities.getRandomIntRange(5000, 10000),
                 litigationIntervalInMinutes: 10,

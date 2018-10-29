@@ -109,7 +109,7 @@ class EventEmitter {
             });
 
             responses = responses.map(response => ({
-                imports: JSON.parse(response.datasets),
+                imports: JSON.parse(response.imports),
                 data_size: response.data_size,
                 data_price: response.data_price,
                 stake_factor: response.stake_factor,
@@ -151,10 +151,14 @@ class EventEmitter {
                     data.response.status(200);
                 }
 
-                const normalizedImport = ImportUtilities
-                    .normalizeImport(importId, result.vertices, result.edges);
+                const rawData = 'raw-data' in data.request.headers && data.request.headers['raw-data'] === 'true';
 
-                data.response.send(normalizedImport);
+                if (rawData) {
+                    data.response.send(result);
+                } else {
+                    data.response
+                        .send(ImportUtilities.normalizeImport(result.vertices, result.edges));
+                }
             } catch (error) {
                 logger.error(`Failed to get vertices for import ID ${importId}.`);
                 notifyError(error);
@@ -166,21 +170,21 @@ class EventEmitter {
         });
 
         this._on('api-import-info', async (data) => {
-            const { dataSetId } = data;
-            logger.info(`Get imported vertices triggered for import ID ${dataSetId}`);
+            const { importId } = data;
+            logger.info(`Get imported vertices triggered for import ID ${importId}`);
             try {
-                const dataInfo = await Models.data_info.find({ where: { data_set_id: dataSetId } });
+                const dataInfo = await Models.data_info.find({ where: { import_id: importId } });
 
                 if (!dataInfo) {
-                    logger.info(`Import data for data set ID ${dataSetId} does not exist.`);
+                    logger.info(`Import data for import ID ${importId} does not exist.`);
                     data.response.status(404);
                     data.response.send({
-                        message: `Import data for data set ID ${dataSetId} does not exist`,
+                        message: `Import data for import ID ${importId} does not exist`,
                     });
                     return;
                 }
 
-                const result = await dhService.getImport(dataSetId);
+                const result = await dhService.getImport(importId);
 
                 // Check if packed to fix issue with double classes.
                 const filtered = result.vertices.filter(v => v._dc_key);
@@ -190,7 +194,7 @@ class EventEmitter {
                 }
 
                 const dataimport =
-                    await Models.data_info.findOne({ where: { data_set_id: dataSetId } });
+                    await Models.data_info.findOne({ where: { import_id: importId } });
 
                 if (result.vertices.length === 0 || dataimport == null) {
                     data.response.status(204);
@@ -199,7 +203,10 @@ class EventEmitter {
                     data.response.status(200);
                     data.response.send({
                         import: ImportUtilities.normalizeImport(
-                            dataSetId,
+                            result.vertices,
+                            result.edges,
+                        ),
+                        import_hash: ImportUtilities.importHash(
                             result.vertices,
                             result.edges,
                         ),
@@ -209,7 +216,7 @@ class EventEmitter {
                     });
                 }
             } catch (error) {
-                logger.error(`Failed to get vertices for data set ID ${dataSetId}.`);
+                logger.error(`Failed to get vertices for import ID ${importId}.`);
                 notifyError(error);
                 data.response.status(500);
                 data.response.send({
@@ -245,9 +252,10 @@ class EventEmitter {
                 const dataimports = await Models.data_info.findAll();
                 data.response.status(200);
                 data.response.send(dataimports.map(di => ({
-                    data_set_id: di.data_set_id,
+                    import_id: di.import_id,
                     total_documents: di.total_documents,
                     root_hash: di.root_hash,
+                    import_hash: di.import_hash,
                     data_size: di.data_size,
                     transaction_hash: di.transaction_hash,
                     data_provider_wallet: di.data_provider_wallet,
@@ -775,7 +783,10 @@ class EventEmitter {
         });
 
         // async
-        this._on('kad-replication-response', async (request) => {
+        this._on('kad-replication-response', async (request, response) => {
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             logger.info(`Data for replication arrived from ${transport.extractSenderID(request)}`);
 
             const message = transport.extractMessage(request);
@@ -816,7 +827,10 @@ class EventEmitter {
         });
 
         // async
-        this._on('kad-replication-request', async (request) => {
+        this._on('kad-replication-request', async (request, response) => {
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             const message = transport.extractMessage(request);
             const { offerId, wallet, dhIdentity } = message;
             const { wallet: senderWallet } = transport.extractSenderInfo(request);
@@ -830,7 +844,10 @@ class EventEmitter {
         });
 
         // async
-        this._on('kad-replication-finished', async (request) => {
+        this._on('kad-replication-finished', async (request, response) => {
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             const dhNodeId = transport.extractSenderID(request);
             const replicationFinishedMessage = transport.extractMessage(request);
             const { wallet } = transport.extractSenderInfo(request);
@@ -882,7 +899,10 @@ class EventEmitter {
         });
 
         // async
-        this._on('kad-data-location-response', async (request) => {
+        this._on('kad-data-location-response', async (request, response) => {
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             logger.info('DH confirms possesion of required data');
             try {
                 const dataLocationResponseObject = transport.extractMessage(request);
@@ -902,7 +922,10 @@ class EventEmitter {
         });
 
         // async
-        this._on('kad-data-read-request', async (request) => {
+        this._on('kad-data-read-request', async (request, response) => {
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             logger.info('Request for data read received');
 
             const dataReadRequestObject = transport.extractMessage(request);
@@ -917,7 +940,10 @@ class EventEmitter {
         });
 
         // async
-        this._on('kad-data-read-response', async (request) => {
+        this._on('kad-data-read-response', async (request, response) => {
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             logger.info('Encrypted data received');
 
             const reqStatus = transport.extractRequestStatus(request);
@@ -944,7 +970,9 @@ class EventEmitter {
 
         // async
         this._on('kad-send-encrypted-key', async (request, response) => {
-            await transport.sendResponse(response, []);
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             logger.info('Initial info received to unlock data');
 
             const encryptedPaddedKeyObject = transport.extractMessage(request);
@@ -974,7 +1002,9 @@ class EventEmitter {
 
         // async
         this._on('kad-encrypted-key-process-result', async (request, response) => {
-            await transport.sendResponse(response, []);
+            await transport.sendResponse(response, {
+                status: 'OK',
+            });
             const senderId = transport.extractSenderID(request);
             const { status } = transport.extractMessage(request);
             if (status === 'SUCCESS') {

@@ -178,7 +178,7 @@ describe('GS1 Importer tests', () => {
             return verticesKeys;
         }
 
-        it.skip('check keys immutability on GraphExample_3.xml', async () => {
+        it('check keys immutability on GraphExample_3.xml', async () => {
             const myGraphExample3 = path.join(__dirname, 'test_xml/GraphExample_3.xml');
 
             await gs1.parseGS1(await Utilities.fileContents(myGraphExample3));
@@ -335,7 +335,7 @@ describe('GS1 Importer tests', () => {
             );
         });
 
-        it.skip('should correctly import all examples together', async function () {
+        it('should correctly import all examples together', async function () {
             this.timeout(30000);
 
             const importResults = [];
@@ -356,7 +356,7 @@ describe('GS1 Importer tests', () => {
         });
     });
 
-    describe.skip('Random vertices content and traversal path check', async () => {
+    describe('Random vertices content and traversal path check', async () => {
         let specificVertice;
 
         async function checkTransformationXmlVerticeContent() {
