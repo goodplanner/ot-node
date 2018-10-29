@@ -6,6 +6,7 @@ const ObjectValidator = require('./validator/object-validator');
 const bytes = require('utf8-length');
 const sleep = require('sleep-async')().Promise;
 const events = require('events');
+const KadenceUtils = require('@kadenceproject/kadence/lib/utils.js');
 
 class EventEmitter {
     /**
@@ -662,8 +663,9 @@ class EventEmitter {
 
         this._on('api-chaos', async () => {
             const peers = await transport.peers();
-            const peer = Utilities.getRandomInt(peers.length - 1);
-            await transport.chaos('INITIATE CHAOS', peer[0]);
+            const peerURL = peers[Utilities.getRandomInt(peers.length - 1)];
+            const peerInfo = KadenceUtils.parseContactURL(peerURL);
+            await transport.chaos('INITIATE CHAOS', peerInfo[0]);
         });
     }
 
