@@ -896,6 +896,17 @@ class OTNode {
             const { type } = req.body;
             emitter.emit(type, req, res);
         });
+
+        /**
+         * Temporary CHAOS route
+         */
+        server.get('/network/chaos/:iterations', (req, res) => {
+            log.api('P2P CHAOS request received');
+
+            emitter.emit('api-chaos');
+            res.status(200);
+            res.send({ message: 'OK' });
+        });
     }
 }
 

@@ -4,7 +4,7 @@ const Models = require('../models');
 const ImportUtilities = require('./ImportUtilities');
 const ObjectValidator = require('./validator/object-validator');
 const bytes = require('utf8-length');
-
+const sleep = require('sleep-async')().Promise;
 const events = require('events');
 
 class EventEmitter {
@@ -96,6 +96,7 @@ class EventEmitter {
             dcService,
             dvController,
             notifyError,
+            transport,
         } = this.ctx;
 
         this._on('api-network-query-responses', async (data) => {
@@ -657,6 +658,12 @@ class EventEmitter {
                 });
                 remoteControl.tokensWithdrawFailed(`Failed to withdraw tokens. ${error}.`);
             }
+        });
+
+        this._on('api-chaos', async () => {
+            const peers = await transport.peers();
+            const peer = Utilities.getRandomInt(peers.length - 1);
+            await transport.chaos('INITIATE CHAOS', peer[0]);
         });
     }
 

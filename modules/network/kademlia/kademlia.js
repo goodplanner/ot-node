@@ -91,7 +91,7 @@ class Kademlia {
         );
         this.identity = kadence.utils.toPublicKeyHash(childKey.publicKey).toString('hex');
 
-        this.log.notify(`My identity: ${this.identity}`);
+        this.log.notify(`My network identity: ${this.identity}`);
         this.config.identity = this.identity;
     }
 
@@ -444,15 +444,12 @@ class Kademlia {
         });
 
         // async
-        this.node.use('kad-verify-import-request', (request, response, next) => {
-            this.log.debug('kad-verify-import-request received');
-            this.emitter.emit('kad-verify-import-request', request, response);
-        });
+        this.node.use('kad-chaos', async (request, response) => {
+            this.log.info(`kad-chaos received from ${this.extractSenderID(request)}`);
+            response.send([]);
 
-        // async
-        this.node.use('kad-verify-import-response', (request, response, next) => {
-            this.log.debug('kad-verify-import-response received');
-            this.emitter.emit('kad-verify-import-response', request, response);
+            await sleep.sleep(2000);
+            this.emitter.emit('api-chaos', 10);
         });
 
         // sync
@@ -576,6 +573,19 @@ class Kademlia {
                     this.notifyError(e);
                 }
             });
+
+            node.chaos = async (message, contactId) => {
+                const contact = await node.getContact(contactId);
+                return new Promise((resolve, reject) => {
+                    node.send('kad-chaos', { message }, [contactId, contact], (err, res) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve(res);
+                        }
+                    });
+                });
+            };
 
             node.replicationResponse = async (message, contactId) => {
                 const contact = await node.getContact(contactId);
@@ -706,6 +716,10 @@ class Kademlia {
                     },
                 );
             });
+
+            node.peers = async () => {
+                return this.node.peercache.getBootstrapCandidates();
+            };
         });
     }
 
