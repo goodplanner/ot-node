@@ -449,7 +449,7 @@ class Kademlia {
             response.send([]);
 
             await sleep.sleep(2000);
-            this.emitter.emit('api-chaos', 10);
+            this.emitter.emit('api-chaos');
         });
 
         // sync
