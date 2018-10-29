@@ -447,8 +447,7 @@ class Kademlia {
         this.node.use('kad-chaos', async (request, response) => {
             this.log.info(`kad-chaos received from ${this.extractSenderID(request)}`);
             response.send([]);
-
-            await sleep.sleep(2000);
+            this.log.info(`sent response to ${this.extractSenderID(request)}`);
             this.emitter.emit('api-chaos');
         });
 
@@ -535,7 +534,7 @@ class Kademlia {
              * @param retry
              * @return {Promise}
              */
-            node.refreshContact = async (contactId, retry) => new Promise(async (resolve) => {
+            node.refreshContact = async (contactId) => new Promise(async (resolve) => {
                 const _refresh = () => new Promise((resolve, reject) => {
                     this.node.iterativeFindNode(contactId, (err) => {
                         if (err) {
@@ -552,21 +551,11 @@ class Kademlia {
                 });
 
                 try {
-                    if (retry) {
-                        for (let i = 1; i <= 3; i += 1) {
-                            // eslint-disable-next-line no-await-in-loop
-                            const contact = await _refresh();
-                            if (contact) {
-                                resolve(contact);
-                                return;
-                            }
-                            // eslint-disable-next-line
-                            await sleep.sleep((2 ** i) * 1000);
-                        }
-                    } else {
-                        await _refresh(contactId, retry);
+                    const contact = await _refresh();
+                    if (contact) {
+                        resolve(contact);
+                        return;
                     }
-
                     resolve(null);
                 } catch (e) {
                     // failed to refresh buckets (should not happen)
@@ -717,9 +706,7 @@ class Kademlia {
                 );
             });
 
-            node.peers = async () => {
-                return this.node.peercache.getBootstrapCandidates();
-            };
+            node.peers = async () => this.node.peercache.getBootstrapCandidates();
         });
     }
 
