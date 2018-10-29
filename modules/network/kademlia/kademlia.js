@@ -564,6 +564,7 @@ class Kademlia {
             });
 
             node.chaos = async (message, contactId) => {
+                this.log.info(`send kad-chaos to ${contactId}`);
                 const contact = await node.getContact(contactId);
                 return new Promise((resolve, reject) => {
                     node.send('kad-chaos', { message }, [contactId, contact], (err, res) => {

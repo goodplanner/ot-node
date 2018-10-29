@@ -702,6 +702,7 @@ class EventEmitter {
                 if (dcNodeId === config.identity) {
                     return; // the offer is mine
                 }
+                logger.notify(`received offer from ${dcNodeId}`);
                 await transport.chaos(10, dcNodeId);
             } catch (e) {
                 logger.warn(e.message);
