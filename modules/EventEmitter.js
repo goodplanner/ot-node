@@ -661,11 +661,17 @@ class EventEmitter {
             }
         });
 
-        this._on('api-chaos', async () => {
-            const peers = await transport.peers();
-            const peerURL = peers[Utilities.getRandomInt(peers.length - 1)];
-            const peerInfo = KadenceUtils.parseContactURL(peerURL);
-            await transport.chaos('INITIATE CHAOS', peerInfo[0]);
+        this._on('api-chaos', async (hopsLeft) => {
+            if (!hopsLeft) {
+                return;
+            }
+            hopsLeft -= 1;
+            if (hopsLeft > 0) {
+                const peers = await transport.peers();
+                const peerURL = peers[Utilities.getRandomInt(peers.length - 1)];
+                const peerInfo = KadenceUtils.parseContactURL(peerURL);
+                await transport.chaos(hopsLeft, peerInfo[0]);
+            }
         });
     }
 
@@ -696,7 +702,7 @@ class EventEmitter {
                 if (dcNodeId === config.identity) {
                     return; // the offer is mine
                 }
-                await transport.chaos(`Hello from ${dcNodeId}`, dcNodeId);
+                await transport.chaos(10, dcNodeId);
             } catch (e) {
                 logger.warn(e.message);
             }

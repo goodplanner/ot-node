@@ -900,10 +900,10 @@ class OTNode {
         /**
          * Temporary CHAOS route
          */
-        server.get('/network/chaos', (req, res) => {
+        server.get('/network/chaos/:hops', (req, res) => {
             log.api('P2P CHAOS request received');
 
-            emitter.emit('api-chaos');
+            emitter.emit('api-chaos', req.query.hops);
             res.status(200);
             res.send({ message: 'OK' });
         });
