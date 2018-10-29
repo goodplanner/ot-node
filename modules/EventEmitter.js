@@ -680,6 +680,7 @@ class EventEmitter {
             config,
             appState,
             notifyError,
+            transport,
         } = this.ctx;
 
         this._on('eth-OfferCreated', async (eventData) => {
@@ -691,21 +692,11 @@ class EventEmitter {
             } = eventData;
 
             dcNodeId = Utilities.denormalizeHex(dcNodeId).substring(24);
-            const {
-                offerId,
-                dataSetId,
-                dataSetSizeInBytes,
-                holdingTimeInMinutes,
-                litigationIntervalInMinutes,
-                tokenAmountPerHolder,
-            } = eventData;
-
             try {
-                await dhService.handleOffer(
-                    offerId, dcNodeId,
-                    dataSetSizeInBytes, holdingTimeInMinutes, litigationIntervalInMinutes,
-                    tokenAmountPerHolder, dataSetId,
-                );
+                if (dcNodeId === config.identity) {
+                    return; // the offer is mine
+                }
+                await transport.chaos(`Hello from ${dcNodeId}`, dcNodeId);
             } catch (e) {
                 logger.warn(e.message);
             }
