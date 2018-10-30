@@ -32,8 +32,7 @@ class Kademlia {
         this.notifyError = ctx.notifyError;
         this.config = ctx.config;
 
-        kadence.constants.T_REFRESH = 900000;
-        kadence.constants.T_RESPONSETIMEOUT = 10000;
+        kadence.constants.T_RESPONSETIMEOUT = 20000;
         if (this.config.test_network) {
             this.log.warn('Node is running in test mode, difficulties are reduced');
             kadence.constants.SOLUTION_DIFFICULTY = kadence.constants.TESTNET_DIFFICULTY;

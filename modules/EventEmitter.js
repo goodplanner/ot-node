@@ -662,20 +662,26 @@ class EventEmitter {
         });
 
         this._on('api-chaos', async (message) => {
-            const { hops, payload } = message;
+            const { hops, payload, from } = message;
             if (!hops) {
                 return;
             }
 
             const hopsLeft = hops - 1;
             if (hopsLeft > 0) {
-                const peers = await transport.peers();
-                const peerURL = peers[Utilities.getRandomInt(peers.length - 1)];
-                const peerInfo = KadenceUtils.parseContactURL(peerURL);
+                let sendTo = from;
+                if (sendTo == null) {
+                    const peers = await transport.peers();
+                    const peerURL = peers[Utilities.getRandomInt(peers.length - 1)];
+                    const peerInfo = KadenceUtils.parseContactURL(peerURL);
+                    // eslint-disable-next-line
+                    sendTo = peerInfo[0];
+                }
                 await transport.chaos({
                     hops: hopsLeft,
                     payload,
-                }, peerInfo[0]);
+                    from: config.identity,
+                }, sendTo);
             }
         });
     }
@@ -715,6 +721,7 @@ class EventEmitter {
                 await transport.chaos({
                     hops: 2,
                     dataSetId,
+                    from: config.identity,
                 }, dcNodeId);
             } catch (e) {
                 logger.warn(e.message);
