@@ -417,11 +417,13 @@ class Kademlia {
 
         // async
         this.node.use('kad-chaos', async (request, response) => {
-            this.log.info(`kad-chaos received from ${this.extractSenderID(request)}`);
+            const message = this.extractMessage(request);
+            const { hops, payload } = message;
+
+            const payloadInfoMsg = payload != null ? 'Payload included.' : 'Payload not included.';
+            this.log.info(`kad-chaos received from ${this.extractSenderID(request)}. Hops ${hops}. ${payloadInfoMsg}`);
             response.send([]);
             this.log.info(`response sent to ${this.extractSenderID(request)}`);
-
-            const message = this.extractMessage(request);
             this.emitter.emit('api-chaos', message);
         });
 
