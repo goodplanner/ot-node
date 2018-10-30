@@ -208,6 +208,54 @@ class Utilities {
      * @return {*}
      */
     static transformLog(level, msg) {
+        if (msg.startsWith('connection timed out')) {
+            return null;
+        }
+        if (msg.startsWith('negotiation error')) {
+            return null;
+        }
+        if (msg.includes('error with remote connection')) {
+            return null;
+        }
+        if (msg.includes('remote connection encountered error')) {
+            return null;
+        }
+        if (msg.startsWith('updating peer profile')) {
+            return null;
+        }
+        if (msg.includes('client cannot service request at this time')) {
+            return null;
+        }
+        if (msg.includes('KADemlia error') && msg.includes('Message previously routed')) {
+            return null;
+        }
+        if (msg.includes('gateway timeout')) {
+            return null;
+        }
+        if (msg.startsWith('connect econnrefused')) {
+            return null;
+        }
+        if (msg.includes('unable to route to tunnel')) {
+            return null;
+        }
+        if (msg.includes('socket hang up')) {
+            return null;
+        }
+        if (msg.includes('getaddrinfo')) {
+            return null;
+        }
+        if (msg.includes('read econnreset')) {
+            return null;
+        }
+        if (msg.includes('connect etimedout')) {
+            return null;
+        }
+        if (msg.includes('connect ehostunreach')) {
+            return null;
+        }
+        if (msg.includes('ssl23_get_server_hello')) {
+            return null;
+        }
         return {
             level,
             msg,
