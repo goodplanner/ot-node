@@ -420,7 +420,9 @@ class Kademlia {
             this.log.info(`kad-chaos received from ${this.extractSenderID(request)}`);
             response.send([]);
             this.log.info(`response sent to ${this.extractSenderID(request)}`);
-            this.emitter.emit('api-chaos', this.extractMessage(request));
+
+            const message = this.extractMessage(request);
+            this.emitter.emit('api-chaos', message);
         });
 
         // sync
@@ -506,7 +508,7 @@ class Kademlia {
              * @param retry
              * @return {Promise}
              */
-            node.refreshContact = async (contactId) => new Promise(async (resolve) => {
+            node.refreshContact = async contactId => new Promise(async (resolve) => {
                 const _refresh = () => new Promise((resolve, reject) => {
                     this.node.iterativeFindNode(contactId, (err) => {
                         if (err) {
@@ -536,7 +538,10 @@ class Kademlia {
             });
 
             node.chaos = async (message, contactId) => {
-                this.log.info(`send kad-chaos to ${contactId}`);
+                const { hops, payload } = message;
+
+                const payloadInfoMsg = payload != null ? 'Payload included.' : 'Payload not included.';
+                this.log.info(`send kad-chaos to ${contactId}. Hops ${hops}. ${payloadInfoMsg}`);
                 const contact = await node.getContact(contactId);
                 return new Promise((resolve, reject) => {
                     node.send('kad-chaos', { message }, [contactId, contact], (err, res) => {

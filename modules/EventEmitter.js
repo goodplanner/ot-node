@@ -661,16 +661,20 @@ class EventEmitter {
             }
         });
 
-        this._on('api-chaos', async (hopsLeft) => {
-            if (!hopsLeft) {
+        this._on('api-chaos', async (message) => {
+            const { hops, payload } = message;
+            if (!hops) {
                 return;
             }
-            hopsLeft -= 1;
+            const hopsLeft = hops - 1;
             if (hopsLeft > 0) {
                 const peers = await transport.peers();
                 const peerURL = peers[Utilities.getRandomInt(peers.length - 1)];
                 const peerInfo = KadenceUtils.parseContactURL(peerURL);
-                await transport.chaos(hopsLeft, peerInfo[0]);
+                await transport.chaos({
+                    hops: hopsLeft,
+                    payload,
+                }, peerInfo[0]);
             }
         });
     }
@@ -703,7 +707,9 @@ class EventEmitter {
                     return; // the offer is mine
                 }
                 logger.notify(`received offer from ${dcNodeId}`);
-                await transport.chaos(10, dcNodeId);
+                await transport.chaos({
+                    hops: 10,
+                }, dcNodeId);
             } catch (e) {
                 logger.warn(e.message);
             }
