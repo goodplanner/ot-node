@@ -673,10 +673,11 @@ class EventEmitter {
                     this.graphStorage.findEdgesByImportId(dataSetId),
                     this.graphStorage.findVerticesByImportId(dataSetId),
                 ]);
-                payload = {
+                const objJsonStr = JSON.stringify({
                     edges,
                     vertices,
-                };
+                });
+                payload = Buffer.from(objJsonStr).toString('base64');
             }
 
             const hopsLeft = hops - 1;
