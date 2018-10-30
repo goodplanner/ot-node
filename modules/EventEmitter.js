@@ -662,22 +662,9 @@ class EventEmitter {
         });
 
         this._on('api-chaos', async (message) => {
-            let { payload } = message;
-            const { hops, dataSetId } = message;
+            const { hops, payload } = message;
             if (!hops) {
                 return;
-            }
-
-            if (!payload && dataSetId) {
-                const [edges, vertices] = await Promise.all([
-                    this.graphStorage.findEdgesByImportId(dataSetId),
-                    this.graphStorage.findVerticesByImportId(dataSetId),
-                ]);
-                const objJsonStr = JSON.stringify({
-                    edges,
-                    vertices,
-                });
-                payload = Buffer.from(objJsonStr).toString('base64');
             }
 
             const hopsLeft = hops - 1;
