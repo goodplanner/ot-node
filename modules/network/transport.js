@@ -40,15 +40,6 @@ class Transport {
     }
 
     /**
-     * Join node
-     * @param request
-     * @returns {*}
-     */
-    join(request) {
-        return this.network.join(request);
-    }
-
-    /**
      * Extracts message from native request
      * @param request
      * @returns {*}

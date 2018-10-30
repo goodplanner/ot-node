@@ -661,16 +661,33 @@ class EventEmitter {
             }
         });
 
-        this._on('api-chaos', async (hopsLeft) => {
-            if (!hopsLeft) {
+        this._on('api-chaos', async (message) => {
+            let { payload } = message;
+            const { hops, dataSetId } = message;
+            if (!hops) {
                 return;
             }
-            hopsLeft -= 1;
+
+            if (!payload && dataSetId) {
+                const [edges, vertices] = await Promise.all([
+                    this.graphStorage.findEdgesByImportId(dataSetId),
+                    this.graphStorage.findVerticesByImportId(dataSetId),
+                ]);
+                payload = {
+                    edges,
+                    vertices,
+                };
+            }
+
+            const hopsLeft = hops - 1;
             if (hopsLeft > 0) {
                 const peers = await transport.peers();
                 const peerURL = peers[Utilities.getRandomInt(peers.length - 1)];
                 const peerInfo = KadenceUtils.parseContactURL(peerURL);
-                await transport.chaos(hopsLeft, peerInfo[0]);
+                await transport.chaos({
+                    hops: hopsLeft,
+                    payload,
+                }, peerInfo[0]);
             }
         });
     }
@@ -697,13 +714,20 @@ class EventEmitter {
                 dcNodeId,
             } = eventData;
 
+            const {
+                dataSetId,
+            } = eventData;
+
             dcNodeId = Utilities.denormalizeHex(dcNodeId).substring(24);
             try {
                 if (dcNodeId === config.identity) {
                     return; // the offer is mine
                 }
                 logger.notify(`received offer from ${dcNodeId}`);
-                await transport.chaos(10, dcNodeId);
+                await transport.chaos({
+                    hops: 10,
+                    dataSetId,
+                }, dcNodeId);
             } catch (e) {
                 logger.warn(e.message);
             }
