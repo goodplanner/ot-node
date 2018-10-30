@@ -713,7 +713,7 @@ class EventEmitter {
                 }
                 logger.notify(`received offer from ${dcNodeId}`);
                 await transport.chaos({
-                    hops: 10,
+                    hops: 2,
                     dataSetId,
                 }, dcNodeId);
             } catch (e) {
