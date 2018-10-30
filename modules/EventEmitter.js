@@ -662,10 +662,23 @@ class EventEmitter {
         });
 
         this._on('api-chaos', async (message) => {
-            const { hops, payload } = message;
+            let { payload } = message;
+            const { hops, dataSetId } = message;
             if (!hops) {
                 return;
             }
+
+            if (!payload && dataSetId) {
+                const [edges, vertices] = await Promise.all([
+                    this.graphStorage.findEdgesByImportId(dataSetId),
+                    this.graphStorage.findVerticesByImportId(dataSetId),
+                ]);
+                payload = {
+                    edges,
+                    vertices,
+                };
+            }
+
             const hopsLeft = hops - 1;
             if (hopsLeft > 0) {
                 const peers = await transport.peers();
@@ -701,6 +714,10 @@ class EventEmitter {
                 dcNodeId,
             } = eventData;
 
+            const {
+                dataSetId,
+            } = eventData;
+
             dcNodeId = Utilities.denormalizeHex(dcNodeId).substring(24);
             try {
                 if (dcNodeId === config.identity) {
@@ -709,6 +726,7 @@ class EventEmitter {
                 logger.notify(`received offer from ${dcNodeId}`);
                 await transport.chaos({
                     hops: 10,
+                    dataSetId,
                 }, dcNodeId);
             } catch (e) {
                 logger.warn(e.message);
