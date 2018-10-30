@@ -496,7 +496,13 @@ class Kademlia {
                         this.node.router.addContactByNodeId(contactId, contact);
                     }
                 }
-                return contact;
+                if (contact && contact.hostname) {
+                    return contact;
+                }
+                // try to find out about the contact from peers
+                this.log.warn(`Try to find contact ${contactId}`);
+                await node.refreshContact(contactId);
+                return this.node.router.getContactByNodeId(contactId);
             };
 
             /**

@@ -120,6 +120,7 @@ class Transport {
      * @private
      */
     async _send(fn, msg, contactId, opts = DEFAULT_RETRY_CONFIG, fatalErrors = []) {
+        const that = this;
         return retry(async (halt, iteration) => {
             try {
                 if (iteration > 1) {
@@ -127,6 +128,7 @@ class Transport {
                 }
                 return await this.network.node[fn](msg, contactId);
             } catch (err) {
+                that.logger.error(`Error ${err}`);
                 const isFatal = fatalErrors.filter(e => err.msg.includes(e)).length > 0;
                 if (isFatal) {
                     this.logger.warn(`No retry policy for the error ${err}`);
