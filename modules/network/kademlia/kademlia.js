@@ -141,7 +141,7 @@ class Kademlia {
             const ca = this.config.ssl_authority_paths.map(fs.readFileSync);
 
             // Initialize transport adapter
-            const transport = new kadence.HTTPSTransport({ key, cert, ca });
+            const transport = new kadence.UDPTransport();
 
             // Initialize protocol implementation
             this.node = new kadence.KademliaNode({
