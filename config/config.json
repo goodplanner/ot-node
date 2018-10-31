@@ -316,7 +316,7 @@
     },
     "network": {
       "id": "ExperimentV1.0.0",
-      "bootstraps": ["https://46.101.38.216:5278/#d0fe3f2c8c3868f3c88f1647243d4b770eb057ea"],
+      "bootstraps": ["https://188.166.3.182:5278/#a2e0e3370b4aa1b5fb619b678d00eb21cf74ce40"],
       "remoteWhitelist": ["54.93.223.161", "127.0.0.1"]
     },
     "bugSnag": {
