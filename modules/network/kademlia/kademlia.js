@@ -546,6 +546,9 @@ class Kademlia {
                 const payloadInfoMsg = payload != null ? 'Payload included.' : 'Payload not included.';
                 this.log.info(`send kad-chaos to ${contactId}. Hops ${hops}. ${payloadInfoMsg}`);
                 const contact = await node.getContact(contactId);
+                if (contact == null) {
+                    throw new Error(`Contact ${contactId} cannot be found`);
+                }
                 return new Promise((resolve, reject) => {
                     node.send('kad-chaos', { message }, [contactId, contact], (err, res) => {
                         if (err) {
