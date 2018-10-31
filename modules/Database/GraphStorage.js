@@ -106,6 +106,10 @@ class GraphStorage {
         });
     }
 
+    getConsensusEvents(sender_id) {
+        return this.db.getConsensusEvents(sender_id);
+    }
+
     /**
      * Finds vertices by query defined in DataLocationRequestObject
      * @param inputQuery
