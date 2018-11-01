@@ -501,8 +501,7 @@ class Kademlia {
                 }
                 // try to find out about the contact from peers
                 this.log.warn(`Try to find contact ${contactId}`);
-                await node.refreshContact(contactId);
-                return this.node.router.getContactByNodeId(contactId);
+                return await node.refreshContact(contactId);
             };
 
             /**
