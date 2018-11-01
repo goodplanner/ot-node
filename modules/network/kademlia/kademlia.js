@@ -520,6 +520,8 @@ class Kademlia {
                             const contact = result.find(c => c[0] === contactId);
                             if (contact) {
                                 resolve(contact);
+                            } else {
+                                resolve(null);
                             }
                         } else {
                             resolve(null);
