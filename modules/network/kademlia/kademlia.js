@@ -492,8 +492,7 @@ class Kademlia {
                     // refresh bucket
                     if (contactInfo) {
                         // eslint-disable-next-line
-                        contact = contactInfo[1];
-                        this.node.router.addContactByNodeId(contactId, contact);
+                        return contactInfo[1];
                     }
                 }
                 if (contact && contact.hostname) {
@@ -501,7 +500,7 @@ class Kademlia {
                 }
                 // try to find out about the contact from peers
                 this.log.warn(`Try to find contact ${contactId}`);
-                return await node.refreshContact(contactId);
+                return node.refreshContact(contactId);
             };
 
             /**
@@ -531,7 +530,7 @@ class Kademlia {
                 try {
                     const contact = await _refresh();
                     if (contact) {
-                        resolve(contact);
+                        resolve(contact[1]);
                         return;
                     }
                     resolve(null);
