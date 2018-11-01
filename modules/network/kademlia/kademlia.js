@@ -32,7 +32,6 @@ class Kademlia {
         this.notifyError = ctx.notifyError;
         this.config = ctx.config;
 
-        kadence.constants.K = 100;
         kadence.constants.T_RESPONSETIMEOUT = 20000;
         if (this.config.test_network) {
             this.log.warn('Node is running in test mode, difficulties are reduced');
@@ -142,7 +141,7 @@ class Kademlia {
             const ca = this.config.ssl_authority_paths.map(fs.readFileSync);
 
             // Initialize transport adapter
-            const transport = new kadence.UDPTransport();
+            const transport = new kadence.HTTPSTransport({ key, cert, ca });
 
             // Initialize protocol implementation
             this.node = new kadence.KademliaNode({
