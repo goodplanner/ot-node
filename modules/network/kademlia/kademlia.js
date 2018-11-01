@@ -513,16 +513,18 @@ class Kademlia {
              */
             node.refreshContact = async contactId => new Promise(async (resolve) => {
                 const _refresh = () => new Promise((resolve, reject) => {
-                    this.node.iterativeFindNode(contactId, (err) => {
+                    this.node.iterativeFindNode(contactId, (err, result) => {
                         if (err) {
                             reject(err);
-                        } else {
-                            const contact = this.node.router.getContactByNodeId(contactId);
-                            if (contact && contact.hostname) {
+                            return;
+                        }
+                        if (result && Array.isArray(result)) {
+                            const contact = result.find(c => c[0] === contactId);
+                            if (contact) {
                                 resolve(contact);
-                            } else {
-                                resolve(null);
                             }
+                        } else {
+                            resolve(null);
                         }
                     });
                 });
