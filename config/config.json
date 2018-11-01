@@ -356,7 +356,7 @@
       "network_id": "rinkeby",
       "gas_limit": "1500000",
       "gas_price": "5000000000",
-      "hub_contract_address": "0x6A3a6A5C980cc042B14c201807E71B996C23D032",
+      "hub_contract_address": "0x2d193FDCd53e963783482B6F1d9EC48288c18489",
       "rpc_node_host": "https://rinkeby.infura.io/1WRiEqAQ9l4SW6fGdiDt",
       "rpc_node_port": "",
       "plugins": [
@@ -375,18 +375,18 @@
       ]
     },
     "network": {
-      "id": "PirotV1.0.0",
-      "bootstraps": ["https://46.101.38.216:5278/#941d1226cef9e4b52531113944a0a692508614d2"],
+      "id": "PirotScaleV1.0.0",
+      "bootstraps": ["https://188.166.3.182:5278/#644771480215e3d2cd9a2512188cced5f237133d"],
       "remoteWhitelist": ["54.93.223.161", "127.0.0.1"],
       "solutionDifficulty": 8,
       "identityDifficulty": 12
     },
     "bugSnag": {
-      "releaseStage": "pirot"
+      "releaseStage": "pirot-scale"
     },
     "autoUpdater": {
       "repo": "OriginTrail/ot-node",
-      "branch": "feature/pirot"
+      "branch": "feature/pirot-scale"
     },
     "dataSetStorage": "data_set_storage",
     "dc_holding_time_in_minutes": 10080,
