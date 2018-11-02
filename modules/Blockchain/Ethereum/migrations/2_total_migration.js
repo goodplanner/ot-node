@@ -248,6 +248,32 @@ module.exports = async (deployer, network, accounts) => {
         }
 
         break;
+    case 'approvelive':
+        console.log('Getting hub');
+        hub = await Hub.at('0x6A3a6A5C980cc042B14c201807E71B996C23D032');
+        console.log(`Hub received: ${hub.address}`);
+
+        approvalAddress = await hub.approvalAddress.call();
+        console.log(`Approval address: ${approvalAddress}`);
+
+        approval = await Approval.at(approvalAddress);
+        console.log(`Approval received: ${approvalAddress}`);
+
+        // Insert erc725 identities in identities array
+        identities = [
+            '0x43914e3f2e92ef214b9d0974639ade385946b907',
+        ];
+        // Insert node identities here (don't forget to prepend 0x)
+        nodeIds = [
+            '0xcaadbbaf88ab45aa20fefc96acd80335670356b3',
+        ];
+
+        for (let i = 0; i < nodeIds.length; i += 1) {
+            // eslint-disable-next-line no-await-in-loop
+            await approval.approve(identities[i], nodeIds[i], new BN(0));
+        }
+
+        break;
     case 'live':
         await deployer.deploy(Hub, { gas: 6000000, from: accounts[0] })
             .then((result) => {

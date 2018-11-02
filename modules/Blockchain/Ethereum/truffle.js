@@ -71,6 +71,16 @@ module.exports = {
             skipDryRun: true,
         },
 
+        approvelive: {
+            host: 'localhost', // Connect to geth on the specified
+            port: 8545,
+            provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/${process.env.MAINNET_ACCESS_KEY}`),
+            network_id: 4,
+            gas: 2000000, // Gas limit used for calls
+            websockets: true,
+            skipDryRun: true,
+        },
+
         live: {
             host: 'localhost',
             port: 8545,
