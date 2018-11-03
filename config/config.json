@@ -89,12 +89,12 @@
       "branch": "develop"
     },
     "dataSetStorage": "data_set_storage",
-    "dc_holding_time_in_minutes": 60,
-    "dc_token_amount_per_holder": 1,
-    "dc_litigation_interval_in_minutes": 10,
-    "dh_max_holding_time_in_minutes": 100,
-    "dh_min_token_price": 1,
-    "dh_min_litigation_interval_in_minutes": 1,
+    "dc_holding_time_in_minutes": 10080,
+    "dc_token_amount_per_holder": "50000000000000000000",
+    "dc_litigation_interval_in_minutes": 5,
+    "dh_max_holding_time_in_minutes": 10080,
+    "dh_min_token_price": "10000000000000000000",
+    "dh_min_litigation_interval_in_minutes": 5,
     "deposit_on_demand": true,
     "dc_choose_time": 300000,
     "requireApproval": false
@@ -189,12 +189,12 @@
       "branch": "release/staging"
     },
     "dataSetStorage": "data_set_storage",
-    "dc_holding_time_in_minutes": 60,
-    "dc_token_amount_per_holder": 1,
-    "dc_litigation_interval_in_minutes": 10,
-    "dh_max_holding_time_in_minutes": 100,
-    "dh_min_token_price": 1,
-    "dh_min_litigation_interval_in_minutes": 1,
+    "dc_holding_time_in_minutes": 10080,
+    "dc_token_amount_per_holder": "50000000000000000000",
+    "dc_litigation_interval_in_minutes": 5,
+    "dh_max_holding_time_in_minutes": 10080,
+    "dh_min_token_price": "10000000000000000000",
+    "dh_min_litigation_interval_in_minutes": 5,
     "deposit_on_demand": true,
     "dc_choose_time": 300000,
     "requireApproval": false
@@ -289,12 +289,12 @@
       "branch": "release/stable"
     },
     "dataSetStorage": "data_set_storage",
-    "dc_holding_time_in_minutes": 60,
-    "dc_token_amount_per_holder": 1,
-    "dc_litigation_interval_in_minutes": 10,
-    "dh_max_holding_time_in_minutes": 100,
-    "dh_min_token_price": 1,
-    "dh_min_litigation_interval_in_minutes": 1,
+    "dc_holding_time_in_minutes": 10080,
+    "dc_token_amount_per_holder": "50000000000000000000",
+    "dc_litigation_interval_in_minutes": 5,
+    "dh_max_holding_time_in_minutes": 10080,
+    "dh_min_token_price": "10000000000000000000",
+    "dh_min_litigation_interval_in_minutes": 5,
     "deposit_on_demand": true,
     "dc_choose_time": 300000,
     "requireApproval": false
@@ -356,7 +356,7 @@
       "network_id": "rinkeby",
       "gas_limit": "1500000",
       "gas_price": "5000000000",
-      "hub_contract_address": "0x0d7AFe289B40d214EE79D0e1B3DbFF33D049A39D",
+      "hub_contract_address": "0x34Cb56D8156E65Bab3765963EC0a6B68743F1dd5",
       "rpc_node_host": "https://rinkeby.infura.io/1WRiEqAQ9l4SW6fGdiDt",
       "rpc_node_port": "",
       "plugins": [
@@ -375,18 +375,21 @@
       ]
     },
     "network": {
-      "id": "PirotV1.0.0",
-      "bootstraps": ["https://46.101.38.216:5278/#941d1226cef9e4b52531113944a0a692508614d2"],
+      "id": "TestbranchV1.0.0",
+      "bootstraps": [
+        "https://188.166.97.125:5278/#1bfbe7fc48ea81ed52df1ad7372a04f6d8dc67da",
+        "https://172.31.32.77:5278/#da47e2afaad093ee2669499e81b38ebd27e0cd4d"
+      ],
       "remoteWhitelist": ["54.93.223.161", "127.0.0.1"],
       "solutionDifficulty": 8,
       "identityDifficulty": 12
     },
     "bugSnag": {
-      "releaseStage": "pirot"
+      "releaseStage": "testbranch"
     },
     "autoUpdater": {
       "repo": "OriginTrail/ot-node",
-      "branch": "feature/pirot"
+      "branch": "feature/testbranch"
     },
     "dataSetStorage": "data_set_storage",
     "dc_holding_time_in_minutes": 60,

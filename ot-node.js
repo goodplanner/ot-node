@@ -398,6 +398,7 @@ class OTNode {
         if (process.env.NODE_ENV !== 'development') {
             try {
                 appState.enoughFunds = await blockchain.getBalances();
+                //TODO fiks
                 if (appState.enoughFunds === false && !await profileService.isProfileCreated()) {
                     log.warn('Insufficient funds to create profile');
                     process.exit(1);
