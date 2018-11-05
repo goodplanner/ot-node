@@ -1,8 +1,6 @@
 const result = require('dotenv').config({ path: `${__dirname}/../../../.env` });
 var HDWalletProvider = require('truffle-hdwallet-provider'); // eslint-disable-line import/no-unresolved
 
-var mnemonic = process.env.TRUFFLE_MNEMONIC;
-
 module.exports = {
     compilers: {
         solc: {
@@ -54,9 +52,19 @@ module.exports = {
         rinkeby: {
             host: 'localhost', // Connect to geth on the specified
             port: 8545,
-            provider: () => new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/${process.env.RINKEBY_ACCESS_KEY}`),
+            provider: () => new HDWalletProvider(process.env.TRUFFLE_MNEMONIC, `https://rinkeby.infura.io/${process.env.RINKEBY_ACCESS_KEY}`),
             network_id: 4,
             gas: 6000000, // Gas limit used for deploys
+            websockets: true,
+            skipDryRun: true,
+        },
+
+        supply: {
+            host: 'localhost', // Connect to geth on the specified
+            port: 8545,
+            provider: () => new HDWalletProvider(process.env.TRUFFLE_MNEMONIC, `https://rinkeby.infura.io/${process.env.RINKEBY_ACCESS_KEY}`),
+            network_id: 4,
+            gas: 2000000, // Gas limit used for calls
             websockets: true,
             skipDryRun: true,
         },
@@ -64,17 +72,7 @@ module.exports = {
         approve: {
             host: 'localhost', // Connect to geth on the specified
             port: 8545,
-            provider: () => new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/${process.env.RINKEBY_ACCESS_KEY}`),
-            network_id: 4,
-            gas: 2000000, // Gas limit used for calls
-            websockets: true,
-            skipDryRun: true,
-        },
-
-        approvelive: {
-            host: 'localhost', // Connect to geth on the specified
-            port: 8545,
-            provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/${process.env.MAINNET_ACCESS_KEY}`),
+            provider: () => new HDWalletProvider(process.env.TRUFFLE_MNEMONIC, `https://rinkeby.infura.io/${process.env.RINKEBY_ACCESS_KEY}`),
             network_id: 4,
             gas: 2000000, // Gas limit used for calls
             websockets: true,
@@ -84,9 +82,39 @@ module.exports = {
         live: {
             host: 'localhost',
             port: 8545,
-            provider: () => new HDWalletProvider(mnemonic, `https://mainnet.infura.io/${process.env.MAINNET_ACCESS_KEY}`),
+            provider: () => new HDWalletProvider(process.env.LIVE_MNEMONIC, `https://mainnet.infura.io/${process.env.LIVE_ACCESS_KEY}`),
             network_id: 1,
             gas: 6000000, // Gas limit used for deploys
+            websockets: true,
+            skipDryRun: true,
+        },
+
+        supplylive: {
+            host: 'localhost',
+            port: 8545,
+            provider: () => new HDWalletProvider(process.env.LIVE_MNEMONIC, `https://mainnet.infura.io/${process.env.LIVE_ACCESS_KEY}`),
+            network_id: 1,
+            gas: 6000000, // Gas limit used for deploys
+            websockets: true,
+            skipDryRun: true,
+        },
+
+        approvelive: {
+            host: 'localhost', // Connect to geth on the specified
+            port: 8545,
+            provider: () => new HDWalletProvider(process.env.LIVE_MNEMONIC, `https://mainnet.infura.io/${process.env.LIVE_ACCESS_KEY}`),
+            network_id: 4,
+            gas: 2000000, // Gas limit used for calls
+            websockets: true,
+            skipDryRun: true,
+        },
+
+        transferlive: {
+            host: 'localhost', // Connect to geth on the specified
+            port: 8545,
+            provider: () => new HDWalletProvider(process.env.LIVE_MNEMONIC, `https://mainnet.infura.io/${process.env.LIVE_ACCESS_KEY}`),
+            network_id: 4,
+            gas: 2000000, // Gas limit used for calls
             websockets: true,
             skipDryRun: true,
         },

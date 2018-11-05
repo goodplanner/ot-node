@@ -17,6 +17,12 @@ var TestingUtilities = artifacts.require('TestingUtilities'); // eslint-disable-
 
 
 const amountToMint = (new BN(5)).mul((new BN(10)).pow(new BN(30)));
+const amountToSupplyBootstraps = new BN(300);
+const amountToSupplyNodes = new BN(2000);
+
+function toStep(amount) {
+    return (new BN(10)).pow(new BN(18)).mul(amount);
+}
 
 module.exports = async (deployer, network, accounts) => {
     let hub;
@@ -33,10 +39,13 @@ module.exports = async (deployer, network, accounts) => {
     var amounts = [];
     var recepients = [];
 
+    var hubAddress = null;
+    var secureWallet = null;
     var approvalAddress;
     var nodeIds;
     var identities;
     var promises;
+    var wallets;
     var res;
 
     switch (network) {
@@ -233,24 +242,57 @@ module.exports = async (deployer, network, accounts) => {
         approval = await Approval.at(approvalAddress);
         console.log(`Approval received: ${approvalAddress}`);
 
-        // Insert erc725 identities in identities array
+        // Insert erc725 addresses in identities array (normalized)
         identities = [
-            '0x43914e3f2e92ef214b9d0974639ade385946b907',
+            '0x18BD3F6e26fb0DaFdE48775560dFFbfD108bc719',
         ];
-        // Insert node identities here (don't forget to prepend 0x)
+        // Insert node identities here (denormalized)
         nodeIds = [
-            '0xcaadbbaf88ab45aa20fefc96acd80335670356b3',
+            '1bfbe7fc48ea81ed52df1ad7372a04f6d8dc67da',
         ];
 
         for (let i = 0; i < nodeIds.length; i += 1) {
             // eslint-disable-next-line no-await-in-loop
-            await approval.approve(identities[i], nodeIds[i], new BN(0));
+            await approval.approve(identities[i], `0x${nodeIds[i]}`, new BN(0));
         }
 
         break;
+    case 'supplylive':
+        token = await TracToken.at('0xaa7a9ca87d3694b5755f213b5d04094b8d0f0a6f');
+
+        wallets = [
+            '0x290723804ec14861a10B1738bC1Af5E6215288B1',
+            '0x83a04AFcaAA903a2A5426c2a24DE64761428b84f',
+            '0x504cD3aa24c3f0959BC5D7958Bba0ef92c7FCc96',
+            '0x9B3F8Fb9FA32E1c6596cB863D0cF79B531a9F912',
+            '0x387Bd50dCf85ad3d01dff125F4ff4CfBE548dbE0',
+            '0x7784683D1e3d2068960146b2471bbc8f32d9aa8e',
+            '0x35B3Fccf89B065060BB3aBC3ecef1DAfB98715E1',
+            '0x333C82508CcC34A914096A668c2CBBcA68142aA9',
+        ];
+
+        for (let i = 0; i < 2; i += 1) {
+            console.log(`Sending ${amountToSupplyBootstraps.toString()} TRAC to bootstrap nodes`);
+            // eslint-disable-next-line no-await-in-loop
+            await token.transfer(wallets[i], toStep(amountToSupplyBootstraps));
+        }
+        console.log(`Sent ${amountToSupplyBootstraps.toString()} TRAC to bootstrap nodes`);
+
+
+        for (let i = 2; i < wallets.length; i += 1) {
+            console.log(`Sending ${amountToSupplyNodes.toString()} TRAC to network nodes`);
+            // eslint-disable-next-line no-await-in-loop
+            await token.transfer(wallets[i], toStep(amountToSupplyNodes));
+        }
+        console.log(`Sent ${amountToSupplyNodes.toString()} TRAC to network nodes`);
+        break;
     case 'approvelive':
         console.log('Getting hub');
-        hub = await Hub.at('0x6A3a6A5C980cc042B14c201807E71B996C23D032');
+        if (hubAddress == null) {
+            console.log('Please set hub address before sending approval');
+            break;
+        }
+        hub = await Hub.at(hubAddress);
         console.log(`Hub received: ${hub.address}`);
 
         approvalAddress = await hub.approvalAddress.call();
@@ -265,14 +307,25 @@ module.exports = async (deployer, network, accounts) => {
         ];
         // Insert node identities here (don't forget to prepend 0x)
         nodeIds = [
-            '0xcaadbbaf88ab45aa20fefc96acd80335670356b3',
+            'caadbbaf88ab45aa20fefc96acd80335670356b3',
         ];
 
         for (let i = 0; i < nodeIds.length; i += 1) {
             // eslint-disable-next-line no-await-in-loop
-            await approval.approve(identities[i], nodeIds[i], new BN(0));
+            await approval.approve(identities[i], `0x${nodeIds[i]}`, new BN(0));
         }
 
+        break;
+    case 'transferlive':
+        console.log('Getting hub');
+        if (hubAddress == null || secureWallet == null) {
+            console.log('Please set hub address before sending approval');
+            break;
+        }
+        hub = await Hub.at(hubAddress);
+
+        await hub.transferOwnership(secureWallet);
+        console.log(`Set ${secureWallet} as new contract owner`);
         break;
     case 'live':
         await deployer.deploy(Hub, { gas: 6000000, from: accounts[0] })
